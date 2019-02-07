@@ -1,0 +1,10 @@
+*.o
+.env.development.local
+.env.local
+.env.production.local
+.env.test.local
+build
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
