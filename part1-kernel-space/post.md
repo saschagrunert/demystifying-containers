@@ -182,7 +182,12 @@ this? This is where the Linux namespaces join the party.
 
 ## Linux Namespaces
 
-Namespaces are a Linux kernel feature which were introduced back in 2002 with Linux 2.4.19. The idea behind a namespace is to wrap certain global system resources in an abstraction layer. This makes it appear that the processes within a namespace have their own isolated instance of the resource. The kernels namespace abstraction allows different groups of processes to have different views of the system.
+Namespaces are a Linux kernel feature which were introduced back in 2002 with
+Linux 2.4.19. The idea behind a namespace is to wrap certain global system
+resources in an abstraction layer. This makes it appear that the processes
+within a namespace have their own isolated instance of the resource. The
+kernels namespace abstraction allows different groups of processes to have
+different views of the system.
 
 Not all available namespaces were implemented from the beginning on. A full
 support for what we now understand as “container ready” was finished in kernel
@@ -420,7 +425,9 @@ can be done via `ip`, too:
 mynet
 ```
 
-So we created a new network namespace called `mynet`. When `ip` creates a network namespace, it will create a bind mount for it under `/var/run/netns` too. This allows the namespace to persist even when no processes are running
+So we created a new network namespace called `mynet`. When `ip` creates a
+network namespace, it will create a bind mount for it under `/var/run/netns`
+too. This allows the namespace to persist even when no processes are running
 within it.
 
 With `ip netns exec` we can inspect and manipulate our network namespace even
@@ -681,7 +688,8 @@ covered later on.
 
 ### Demo Application
 
-A small demo application can be used to create a simple isolated environment via the namespace API:
+A small demo application can be used to create a simple isolated environment via
+the namespace API:
 
 ```c
 #define _GNU_SOURCE
