@@ -16,3 +16,10 @@ container tools, runtimes, software defined networks and orchestration software
 like Kubernetes are designed and how they work under the hood.
 
 ## Part I: Kernel Space
+
+This first blog post (and talk) is scoped to Linux kernel related topics, which
+will provide you with the necessary foundation to build up a deep understanding
+about containers. We will gain an insight about the history of UNIX, Linux and
+talk about solutions like chroot, namespaces and cgroups combined with hacking
+our own examples. Besides this we will peel some containers to get a feeling
+about future topics we will talk about.

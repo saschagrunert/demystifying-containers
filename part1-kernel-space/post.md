@@ -1,90 +1,90 @@
-# Demystifying containers - Part 1: Kernel Space
-
-## About the series
-
-This series of blog posts and corresponding talks aims to provide you a
-pragmatic view on containers from a historic perspective. We will discover all
-layers of modern cloud architectures, which means we will start at the Kernel
-level and will end up at writing our own secure cloud native applications.
-
-Simple examples paired with the historic background will guide you from the
-beginning with a minimal Linux environment up to crafting secure containers
-which fit perfectly into today's and future orchestration world. At the end it
-should be much easier understand how features in the Linux kernel, container
-tools, runtimes, software defined networks and orchestration software like
-Kubernetes are designed and how they work under the hood.
-
-This first blog post and talk will be all about Linux kernel related topics
-around containers, which will provide you the necessary foundation to build up a
-deep understanding about containers. We will gain an insight about the history
-of UNIX, Linux and talk about solutions like chroot, namespaces and cgroups
-combined with hacking our own examples. Beside this we will peel some containers
-to get a feeling about future topics we will talk about.
-
 ## Table of Contents
 
-- [Introduction](#introduction)
-- [chroot](#chroot)
-- [Linux Namespaces](#linux-namespaces)
-  - [Namespace API](#namespace-api)
-    - [Mount (mnt)](#mount--mnt-)
-    - [UNIX Time-sharing System (UTS)](#unix-time-sharing-system--uts-)
-    - [Interprocess Communication (IPC)](#interprocess-communication--ipc-)
-    - [Process ID (pid)](#process-id--pid-)
-    - [Network (net)](#network--net-)
-    - [User ID (user)](#user-id--user-)
-    - [Control group (cgroup)](#control-group--cgroup-)
-  - [API example](#api-example)
-  - [Composing namespaces](#composing-namespaces)
-- [Putting all together](#putting-all-together)
-- [Conclusion](#conclusion)
+* [Introduction](#introduction)
+* [chroot](#chroot)
+* [Linux Namespaces](#linux-namespaces)
+  * [API](#api)
+    * [clone](#clone)
+    * [unshare](#unshare)
+    * [setns](#setns)
+    * [proc](#proc)
+  * [Available Namespaces](#available-namespaces)
+    * [Mount (mnt)](#mount--mnt-)
+    * [UNIX Time-sharing System (UTS)](#unix-time-sharing-system--uts-)
+    * [Interprocess Communication (IPC)](#interprocess-communication--ipc-)
+    * [Process ID (pid)](#process-id--pid-)
+    * [Network (net)](#network--net-)
+    * [User ID (user)](#user-id--user-)
+    * [Control Group (cgroup)](#control-group--cgroup-)
+  * [Composing Namespaces](#composing-namespaces)
+  * [Demo Application](#demo-application)
+* [Putting all Together](#putting-all-together)
+* [Conclusion](#conclusion)
 
 ## Introduction
 
-If we are talking about containers nowadays most people think of the big blue
-whale or the white steering wheel on the blue background. But what are
-containers in detail? People tend to imagine them as cheap virtual machines
-(VMs), which could be reasoned because the word _container_ does not mean
-anything precisely.
+If we are talking about containers nowadays, most people tend to think of the
+big blue whale or the white steering wheel on the blue background.
+
+![](logos.png)
+
+Let’s put these thoughts aside and ask ourselves: What are containers in detail?
+If we look at the corresponding documentation of Kubernetes we only find
+explanations about [“Why to use
+containers?“](https://kubernetes.io/docs/concepts/overview/what-is-kubernetes/#why-containers)
+and lots of [references to
+Docker](https://kubernetes.io/docs/concepts/containers/images/). Docker itself
+explains containers as [“a standard unit of
+software“](https://www.docker.com/resources/what-container). Their explanations
+provide a general overview but do not reveal much of the underlying “magic“.
+Eventually, people tend to imagine containers as cheap virtual machines (VMs),
+which technically does not come close to the real world. This could be reasoned
+since the word “container” does not mean anything precisely at all. The same
+applies to the word “pod” in the container orchestration ecosystem.
+
+![](raw.png)
 
 If we strip it down then containers are only isolated groups of processes
-running on a single host, which fulfill a set of _common_ features. Some of
+running on a single host, which fulfill a set of “common” features. Some of
 these fancy features are built directly into the Linux kernel and mostly all of
 them have different historical origins.
 
-So containers have to fulfill four major requirements to be acceptable:
+So containers have to fulfill four major requirements to be acceptable as such:
 
 1. Not negotiable: They have to run on a single host. Okay, so two computers
-   cannot create a single container.
+   cannot run a single container.
 2. Clearly: They are groups of processes. You might know that Linux processes
    live inside a tree structure, so we can say containers must have a root
    process.
 3. Okay: They need to be isolated, whatever this means in detail.
 4. Not so clear: They have to fulfill common features. Features in general seem
-   to change over time, so we have to point out what these most common features
+   to change over time, so we have to point out what the most common features
    are.
 
-These requirements alone can lead into confusion. So let’s start from the
-historical beginning to keep things simple.
+![](new.png)
+
+These requirements alone can lead into confusion and the picture is not clear
+yet. So let’s start from the historical beginning to keep things simple.
 
 ## chroot
 
 Mostly every UNIX operating system has the possibility to change the root
-directory of the current running process (and its children). You can use chroot
-as system call (a Linux kernel API function call) or standalone wrapper program
-to achieve this. The first occurrence of this system call (syscall) was
-introduced in UNIX Version 7 (released 1979) and continued its journey into the
-awesome Berkeley Software Distribution (BSD). Chroot is also referenced as
-„jail“, because a guy used it as a honeypot to monitor a security hacker back
-in 1991. So chroot is much older than Linux and it has been used in the early
-2000s for the first approaches in running applications as what we call today as
-microservices. Chroot is currently used as standalone solution by a wide range
-of applications, like for build services in different distributions. Nowadays
-the BSD implementation differs a lots from the Linux brother and we will for now
-focus on the latter.
+directory of the current running process (and its children). This originates
+from its first occurrence in UNIX Version 7 (released 1979), from where it
+continued its journey into the awesome Berkeley Software Distribution (BSD). In
+Linux you can nowadays
+[`chroot(2)`](http://man7.org/linux/man-pages/man2/chroot.2.html) as system call
+(a kernel API function call) or the standalone wrapper program. Chroot is also
+referenced as “jail“, because some person used it as a honeypot to monitor a
+security hacker back in 1991. So chroot is much older than Linux and it has been
+(mis)used in the early 2000s for the first approaches in running applications as
+what we would call today “microservices”. Chroot is currently used by a wide
+range of applications, for example within build services for different
+distributions. Nowadays the BSD implementation differs a lots from the Linux
+one, where we will focus on the latter part for now.
 
-What is needed to run an own chroot environment? Not pretty much, since
-something like this already works:
+What is needed to run an own chroot environment? Not that much, since something
+like this already works:
 
 ```
 > mkdir -p new-root/{bin,lib64}
@@ -93,24 +93,24 @@ something like this already works:
 > sudo chroot new-root
 ```
 
-We create a new root directory, copy a shell and its dependencies in and run
-`chroot`. This jail is pretty useless: All we have at hand is bash and its
+We create a new root directory, copy a bash shell and its dependencies in and
+run `chroot`. This jail is pretty useless: All we have at hand is bash and its
 builtin functions like `cd` and `pwd`.
 
-The current working directory is left unchanged when calling chroot whereas
-relative paths can still refer to files outside of the new root. Beside this,
-further calls to chroot do not stack and they will be overwritten.
+![](chroot.png)
 
-Someone might think it could be worth running a statically linked binary in a
-jail and that is the same as running a container image. It’s absolutely not, and
-a jail is not really a standalone security feature but more something like a
-good addition to a safe system.
+One might think it could be worth running a statically linked binary in a jail
+and that would be the same as running a container image. It’s absolutely not,
+and a jail is not really a standalone security feature but more a good addition
+to our container world.
 
-Only privileged processes with `CAP_SYS_CHROOT` capability are able to call
-chroot. This call changes the root path and nothing else. This means it does
-also not change the current working directory, so that after the call '.' can be
-outside the tree rooted at '/'. At the end of the day the root user can easily
-escape from a jail by running a program like this:
+The current working directory is left unchanged when calling chroot via a
+syscall, whereas relative paths can still refer to files outside of the new
+root. This call changes only the root path and nothing else. Beside this,
+further calls to chroot do not stack and they will override the current jail.
+Only privileged processes with the capability `CAP_SYS_CHROOT` are able to call
+chroot. At the end of the day the root user can easily escape from a jail by
+running a program like this:
 
 ```c
 #include <sys/stat.h>
@@ -126,14 +126,23 @@ int main(void)
 }
 ```
 
-But to continue with a more usefully jail we need an appropriate root file
-system (rootfs). This contains all necessary binaries, libraries and the needed
-file structure. But where to get one? What about peeling it from an already
-existing Open Container Initiative (OCI) container:
+We create a new jail by overwriting the current one and change the working
+directly to some relative path outside of the chroot environment. Another call
+to chroot might bring us outside of the jail which can be verified by spawning a
+new interactive bash shell.
+
+To continue with a more useful jail we need an appropriate root file system
+(rootfs). This contains all binaries, libraries and the necessary file
+structure. But where to get one? What about peeling it from an already existing
+Open Container Initiative (OCI) container, which can be easily done with the two
+tools [`skopeo`](https://github.com/containers/skopeo) and
+[`umoci`](https://github.com/openSUSE/umoci):
 
 ```
 > skopeo copy docker://opensuse/tumbleweed:latest oci:tumbleweed:latest
+[output removed]
 > sudo umoci unpack --image tumbleweed:latest bundle
+[output removed]
 ```
 
 Now with our freshly downloaded and extracted rootfs we can chroot into the jail
@@ -141,17 +150,18 @@ via:
 
 ```
 > sudo chroot bundle/rootfs
-> ls -l
+#
 ```
 
 It looks like we're running inside a fully working environment, right? But what
-did we achieve? We can see that we can sneaky peak outside of the jail from
-a process perspective:
+did we achieve? We can see that we may sneak-peak outside the jail from a
+process perspective:
 
 ```
 > mkdir /proc
 > mount -t proc proc /proc
 > ps aux
+[output removed]
 ```
 
 There is no process isolation available at all. We can even kill programs
@@ -162,51 +172,66 @@ devices:
 > mkdir /sys
 > mount -t sysfs sys /sys
 > ls /sys/class/net
+eth0 lo
 ```
 
-There is no network isolation, too. This leads into a lots of security related
-concerns, because jails are sometimes used for wrong (security related)
-purposes. How to solve this? This is where the Linux namespaces join the party.
+There is no network isolation, too. This missing isolation paired with the
+ability to leave the jail leads into lots of security related concerns, because
+jails are sometimes used for wrong (security related) purposes. How to solve
+this? This is where the Linux namespaces join the party.
 
 ## Linux Namespaces
 
-Namespaces are a Linux kernel feature which were introduced back in 2002 with
-Linux 2.4.19. The idea behind a namespace is to wrap certain global system
-resources in an abstraction layer. This makes it appear that the processes
-within a namespace have their own isolated instance of the resource. The kernels
-namespace abstraction allows different groups of processes to have different
-views of the system.
+Namespaces are a Linux kernel feature which were introduced back in 2002 with Linux 2.4.19. The idea behind a namespace is to wrap certain global system resources in an abstraction layer. This makes it appear that the processes within a namespace have their own isolated instance of the resource. The kernels namespace abstraction allows different groups of processes to have different views of the system.
 
 Not all available namespaces were implemented from the beginning on. A full
-support for what we now understand as containers was finished in kernel version
-3.8 back in 2013 with the introduction of the _user_ namespace. We end up having
-currently seven distinct namespaces implemented: mnt, pid, net, ipc, uts, user
-and cgroup. No worries, we discuss them in detail. In September 2016 two
-additional namespaces were proposed: time and syslog, which are not fully
-implemented yet. Let’s have a look into the available namespaces in detail.
+support for what we now understand as “container ready” was finished in kernel
+version 3.8 back in 2013 with the introduction of the *user* namespace. We end
+up having currently seven distinct namespaces implemented: *mnt, pid, net, ipc,
+uts, user* and *cgroup*. No worries, we discuss them in detail. In September
+2016 two additional namespaces were proposed: *time* and *syslog*, which are not
+fully implemented yet. Let’s have a look into the namespace API before digging
+into certain namespaces.
 
-### Namespace API
+### API
 
 The namespace API of the Linux kernel consists of three main system calls:
 
-- `clone()` - Creates a child process, in a manner similar to `fork()`. This
-  allows the child process to share parts of its execution context with the
-  calling process, such as the memory space, the table of file descriptors, and
-  the table of signal handlers.
+#### clone
 
-- `unshare()` - Allows a process to disassociate parts of the execution context
-  which currently being shared with others. Some parts of the execution context,
-  such as the mount namespace, is shared implicitly when using `fork()`.
+The [`clone(2)`](http://man7.org/linux/man-pages/man2/clone.2.html) API function
+creates a new child process, in a manner similar to
+[`fork(2)`](http://man7.org/linux/man-pages/man2/fork.2.html). Unlike `fork(2)`,
+the `clone(2)` API allows the child process to share parts of its execution
+context with the calling process, such as the memory space, the table of file
+descriptors, and the table of signal handlers. You can pass different namespace
+flags to `clone(2)` to create new namespaces for the child process.
 
-- `setns()` - Given a file descriptor referring to a namespace, reassociate the
-  calling thread with that one. This function can be used to join to an existing
-  namespace. It also helps to keep a namespace open even if it contains no
-  actual process.
+![](clone.png)
+
+#### unshare
+
+The function [`unshare(2)`](http://man7.org/linux/man-pages/man2/unshare.2.html)
+allows a process to disassociate parts of the execution context which currently
+being shared with others.
+
+![](unshare.png)
+
+#### setns
+
+The function [`setns(2)`](http://man7.org/linux/man-pages/man2/setns.2.html)
+reassociates the calling thread with the provided namespace file descriptor.
+This function can be used to join to an existing namespace. It also helps to
+keep a namespace open even if it contains no actual process.
+
+![](setns.png)
+
+#### proc
 
 Beside the available syscalls, the `proc` filesystem populates additional
 namespace related files. Since Linux 3.8, each file in `/proc/$PID/ns` is a
-symbolic link which can be used as a handle for performing operations to the
-referenced namespace, like `setns()`.
+symbolic link which can be used as a handle for performing operations (like
+`setns(2)`) to the referenced namespace.
 
 ```
 > ls -Gg /proc/self/ns/
@@ -223,24 +248,28 @@ lrwxrwxrwx 1 0 Feb  6 18:32 uts -> 'uts:[4026531838]'
 
 This allows us for example to track in which namespaces certain processes
 reside. Another way to play around with namespaces beside the programmatic
-approach is using tools from the `util-linux` package. This contains dedicated
-wrapper programs for the mentioned syscalls. One handy tool related to
+approach is using tools from the
+[`util-linux`](https://github.com/karelzak/util-linux) package. This contains
+dedicated wrapper programs for the mentioned syscalls. One handy tool related to
 namespaces within this package is `lsns`. It lists useful information about all
 currently accessible namespaces or about a single given one. But now let’s
 finally get our hands dirty.
+
+### Available Namespaces
 
 #### Mount (mnt)
 
 The first namespace we want to try out is the mnt namespace, which was the first
 implemented one back in 2002. During that time (mostly) nobody thought that
-multiple namespaces ever were needed, so they decided to call the namespace
+multiple namespaces were ever needed, so they decided to call the namespace
 clone flag `CLONE_NEWNS`. This leads into a small inconsistency with other
 namespace clone flags (I see you suffering!). With the mnt namespace Linux is
 able to isolate a set of mount points by a group of processes.
 
 A great use case of the mnt namespace is to create environments similar to
 jails, but in a more secure fashion. How to create such a namespace? This can
-easily done via a syscall or the unshare command line tool.
+easily done via an API function call or the unshare command line tool. So we can
+do this:
 
 ```
 > sudo unshare -m
@@ -282,18 +311,18 @@ refers to the used namespace. In the end mount namespace related implementation
 scenarios can be really complex, but they give us the power to create flexible
 container filesystem trees. The last thing I want to mention is that mounts can
 have different flavors (shared, slave, private, unbindable), which is greatly
-explained within the shared subtree
-[documentation](https://www.kernel.org/doc/Documentation/filesystems/sharedsubtree.txt).
+explained within the shared subtree [documentation of the Linux
+kernel](https://www.kernel.org/doc/Documentation/filesystems/sharedsubtree.txt).
 
 #### UNIX Time-sharing System (UTS)
 
 The UTS namespace was introduced in Linux 2.6.19 (2006) and allows us to unshare
-the domain- and hostname from the current system. Let's give it a try:
+the domain- and hostname from the current host system. Let's give it a try:
 
 ```
 > sudo unshare -m
 # hostname
-nb-sascha
+nb
 # hostname new-hostname
 # hostname
 new-hostname
@@ -303,14 +332,15 @@ And if we look at the system level nothing has changed, hooray:
 
 ```
 > hostname
-nb-sascha
+nb
 ```
 
-The UTS namespace is yet another nice addition in containerization.
+The UTS namespace is yet another nice addition in containerization, especially
+when it comes to container networking related topics.
 
 #### Interprocess Communication (IPC)
 
-IPC namespaces comes with Linux 2.6.19 (2006) too and isolates interprocess
+IPC namespaces came with Linux 2.6.19 (2006) too and isolate interprocess
 communication (IPC) resources. In special these are System V IPC objects and
 POSIX message queues. One use case of this namespace would be to separate the
 shared memory (SHM) between two processes to avoid misusage. Instead each
@@ -328,10 +358,10 @@ host system. The PID namespaces can be nested, so if a new process is created it
 will have a PID for each namespace from its current namespace up to the initial
 PID namespace.
 
-<!-- Image to explain here -->
+![](pidception.png)
 
-The first process created in a PID namespace gets the number 1 and gains all
-the same special treatment as the usual init process. For example, all processes
+The first process created in a PID namespace gets the number 1 and gains all the
+same special treatment as the usual init process. For example, all processes
 within the namespace are attached to the root PID. This also means that the
 termination of this process will immediately terminate all processes in its PID
 namespace and any descendants. Let's create a new PID namespace:
@@ -339,24 +369,29 @@ namespace and any descendants. Let's create a new PID namespace:
 ```
 > sudo unshare -fp --mount-proc
 # ps aux
+USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root         1  0.4  0.6  18688  6608 pts/0    S    23:15   0:00 -bash
+root        39  0.0  0.1  35480  1768 pts/0    R+   23:15   0:00 ps aux
 ```
 
-Looks isolated, doesn't it? The `--mount-proc` flag is needed to mount the proc
-filesystem from the new namespace. Otherwise we would not see the PID subtree
-corresponding to the namespace. Another option would be to manually mount the
-proc filesystem via `mount -t proc proc /proc`, but this also overrides the
-mount from the host.
+Looks isolated, doesn't it? The `--mount-proc` flag is needed to re-mount the
+proc filesystem from the new namespace. Otherwise we would not see the PID
+subtree corresponding to the namespace. Another option would be to manually
+mount the proc filesystem via `mount -t proc proc /proc`, but this also
+overrides the mount from the host.
 
 #### Network (net)
 
 Network namespaces were completed in Linux 2.6.29 (2009) and can be used to
 virtualize the network stack. Each network namespace contains its own resource
 properties within `/proc/net`. Furthermore, a network namespace contains only a
-loopback interface on initial creation:
+loopback interface on initial creation. Let’s create one:
 
 ```
 > sudo unshare -n
-# ip link
+# ip l
+1: lo: <LOOPBACK> mtu 65536 qdisc noop state DOWN mode DEFAULT group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
 ```
 
 Every network interface (physical or virtual) is present in exactly one
@@ -370,27 +405,29 @@ moves any physical interfaces within it back to the initial network namespace.
 
 A possible use case for the network namespace is creating Software Defined
 Networks (SDN) via virtual Ethernet (veth) interface pairs. One end of the
-network pair will be plugged into a bridged interface whereas the other end
-will be assigned to the target container. This is how pod networks like flannel
-work in general.
+network pair will be plugged into a bridged interface whereas the other end will
+be assigned to the target container. This is how pod networks like
+[flannel](https://github.com/coreos/flannel) work in general.
 
-Let's see how it works. First, we need to create a new network namespace:
+![](network.png)
+
+Let's see how it works. First, we need to create a new network namespace, which
+can be done via `ip`, too:
 
 ```
 > sudo ip netns add mynet
 > sudo ip netns list
+mynet
 ```
 
-So we created a new network namespace called `mynet`. When `ip` creates a
-network namespace, it will create a bind mount for it under `/var/run/netns`
-too. This allows the namespace to persist even when no processes are running
+So we created a new network namespace called `mynet`. When `ip` creates a network namespace, it will create a bind mount for it under `/var/run/netns` too. This allows the namespace to persist even when no processes are running
 within it.
 
-With `ip netns exec` we can further inspect and manipulate our network
-namespace:
+With `ip netns exec` we can inspect and manipulate our network namespace even
+further:
 
 ```
-> sudo ip netns exec mynet ip link list
+> sudo ip netns exec mynet ip l
 1: lo: <LOOPBACK> mtu 65536 qdisc noop state DOWN mode DEFAULT group default qlen 1000
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
 > sudo ip netns exec mynet ping 127.0.0.1
@@ -418,8 +455,8 @@ Hooray! Now let's create a veth pair which should allow communication later on:
 ```
 
 Both interfaces are automatically connected, which means that packets sent to
-veth0 will be received by veth1 and vice versa. Now we associate one end of the
-veth pair to our network namespace:
+`veth0` will be received by `veth1` and vice versa. Now we associate one end of
+the veth pair to our network namespace:
 
 ```
 > sudo ip link set veth1 netns mynet
@@ -441,19 +478,32 @@ Communicating in both directions should now be possible:
 
 ```
 > ping -c1 172.2.0.1
+PING 172.2.0.1 (172.2.0.1) 56(84) bytes of data.
+64 bytes from 172.2.0.1: icmp_seq=1 ttl=64 time=0.036 ms
+
+--- 172.2.0.1 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 0.036/0.036/0.036/0.000 ms
 > sudo ip netns exec mynet ping -c1 172.2.0.2
+PING 172.2.0.2 (172.2.0.2) 56(84) bytes of data.
+64 bytes from 172.2.0.2: icmp_seq=1 ttl=64 time=0.020 ms
+
+--- 172.2.0.2 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 0.020/0.020/0.020/0.000 ms
 ```
 
 It works, but we wouldn't have any internet access from the network namespace.
-We would need a network bridge for that and a default route from the namespace.
-I leave this task up to you, for now let’s go on to the next namespace.
+We would need a network bridge or something similar for that and a default route
+from the namespace. I leave this task up to you, for now let’s go on to the next
+namespace.
 
 #### User ID (user)
 
 With Linux 3.5 (2012) the isolation of user and group IDs was finally possible
-via namespaces. Linux 3.8 (2013) made it possible to create user namespaces
-without being privileged. The user namespace enables that a user and group IDs
-of a process can be different inside and outside of the namespace. An
+via namespaces. Linux 3.8 (2013) made it possible to create user namespaces even
+without being actually privileged. The user namespace enables that a user and
+group IDs of a process can be different inside and outside of the namespace. An
 interesting use-case is that a process can have a normal unprivileged user ID
 outside a user namespace while being fully privileged inside.
 
@@ -469,9 +519,10 @@ nobody
 
 After the namespace creation, the files `/proc/$PID/{u,g}id_map` expose the
 mappings for user and group IDs for the PID. These files can be written only
-once to define the mappings. In general each line within these files contain a
-one to one mapping of a range of contiguous user IDs between two user
-namespaces:
+once to define the mappings.
+
+In general each line within these files contain a one to one mapping of a range
+of contiguous user IDs between two user namespaces:
 
 ```
 > cat /proc/self/uid_map
@@ -484,26 +535,27 @@ be true, and applied to all `2^32 - 1` available IDs.
 
 If now a process tries to access a file, its user and group IDs are mapped into
 the initial user namespace for the purpose of permission checking. When a
-process retrieves file user and group IDs (via `stat()`), the IDs are mapped in
-the opposite direction.
+process retrieves file user and group IDs (via
+[`stat(2)`](http://man7.org/linux/man-pages/man2/fstat.2.html)), the IDs are
+mapped in the opposite direction.
 
-In the unshare example above we call `getuid()` before writing a appropriate
-user mapping, which will result in an unmapped ID. This unmapped ID is
-automatically converted to the overflow user ID (65534 or the value in
-`/proc/sys/kernel/overflow{g,u}id`).
+In the unshare example above we call
+[`getuid(2)`](http://man7.org/linux/man-pages/man2/getuid.2.html) before writing
+a appropriate user mapping, which will result in an unmapped ID. This unmapped
+ID is automatically converted to the overflow user ID (65534 or the value in `/proc/sys/kernel/overflow{g,u}id`).
 
 In the end the user namespace enables great security additions to the container
 world.
 
-#### Control group (cgroup)
+#### Control Group (cgroup)
 
 Croups started their journey 2008 with Linux 2.6.24 as dedicated Linux kernel
 feature. The main goal of cgroups is to support resource limiting,
 prioritization, accounting and controlling. A major redesign started in 2013,
 whereas the cgroup namespace was added with Linux 4.6 (2016) to prevent leaking
-host information from a namespace. The second version of cgroups were released
-too and major features were added since then. One example is an out of memory
-(OOM) killer which adds an ability to kill a cgroup as a single unit to
+host information to a namespace. The second version of cgroups were released
+there too and major features were added since then. One example is an out of
+memory (OOM) killer which adds an ability to kill a cgroup as a single unit to
 guarantee the integrity of the workload.
 
 Let’s play around with them and create a new cgroup. By default the kernel
@@ -513,10 +565,38 @@ new sub-directoy in that location:
 ```
 > sudo mkdir /sys/fs/cgroup/memory/demo
 > ls /sys/fs/cgroup/memory/demo
+cgroup.clone_children
+cgroup.event_control
+cgroup.procs
+memory.failcnt
+memory.force_empty
+memory.kmem.failcnt
+memory.kmem.limit_in_bytes
+memory.kmem.max_usage_in_bytes
+memory.kmem.slabinfo
+memory.kmem.tcp.failcnt
+memory.kmem.tcp.limit_in_bytes
+memory.kmem.tcp.max_usage_in_bytes
+memory.kmem.tcp.usage_in_bytes
+memory.kmem.usage_in_bytes
+memory.limit_in_bytes
+memory.max_usage_in_bytes
+memory.move_charge_at_immigrate
+memory.numa_stat
+memory.oom_control
+memory.pressure_level
+memory.soft_limit_in_bytes
+memory.stat
+memory.swappiness
+memory.usage_in_bytes
+memory.use_hierarchy
+notify_on_release
+tasks
 ```
 
-Now we are able to set the memory limits for that cgroup. We are also turning
-off swap to make our example implementation work.
+You can see that there already some default values exposed there. Now we are
+able to set the memory limits for that cgroup. We are also turning off swap to
+make our example implementation work.
 
 ```
 > sudo su
@@ -531,7 +611,8 @@ To assign a process to a cgroup we can write the corresponding PID to the
 # echo $$ > /sys/fs/cgroup/memory/demo/tasks
 ```
 
-Now we can write a sample application to consume the limited 100MB of memory:
+Now we can write a sample application to consume more than the allowed 100MB of
+memory:
 
 ```rust
 pub fn main() {
@@ -544,16 +625,23 @@ pub fn main() {
 ```
 
 If we run the program, we see that the PID will be killed because of the set
-memory constraints and our host system is still usable.
+memory constraints. So our host system is still usable.
 
 ```
 # ./memory
+10 MB
+20 MB
+30 MB
+40 MB
+50 MB
+60 MB
+70 MB
+80 MB
+90 MB
 Killed
 ```
 
-### API example
-
-### Composing namespaces
+### Composing Namespaces
 
 Namespaces are composable, too! This makes it possible to have isolated pid
 namespaces in Kubernetes Pods which share the same network interface.
@@ -563,9 +651,12 @@ To demonstrate this, let’s create a new namespace with an isolated PID:
 ```
 > sudo unshare -fp --mount-proc
 # ps aux
+USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root         1  0.1  0.6  18688  6904 pts/0    S    23:36   0:00 -bash
+root        39  0.0  0.1  35480  1836 pts/0    R+   23:36   0:00 ps aux
 ```
 
-The `setns()` syscall with its appropriate wrapper program `nsenter` can now be
+The `setns(2)` syscall with its appropriate wrapper program `nsenter` can now be
 used to join the namespace. For this we have to find out which namespace we want
 to join:
 
@@ -588,7 +679,116 @@ We can now see that we are member of the same PID namespace! It is also possible
 to enter already running containers via `nsenter`, but this topic will be
 covered later on.
 
-## Putting all together
+### Demo Application
+
+A small demo application can be used to create a simple isolated environment via the namespace API:
+
+```c
+#define _GNU_SOURCE
+#include <errno.h>
+#include <sched.h>
+#include <stdio.h>
+#include <string.h>
+#include <sys/mount.h>
+#include <sys/msg.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+
+#define STACKSIZE (1024 * 1024)
+static char stack[STACKSIZE];
+
+void print_err(char const * const reason)
+{
+    fprintf(stderr, "Error %s: %s\n", reason, strerror(errno));
+}
+
+int exec(void * args)
+{
+    // Remount proc
+    if (mount("proc", "/proc", "proc", 0, "") != 0) {
+        print_err("mounting proc");
+        return 1;
+    }
+
+    // Set a new hostname
+    char const * const hostname = "new-hostname";
+    if (sethostname(hostname, strlen(hostname)) != 0) {
+        print_err("setting hostname");
+        return 1;
+    }
+
+    // Create a message queue
+    key_t key = {0};
+    if (msgget(key, IPC_CREAT) == -1) {
+        print_err("creating message queue");
+        return 1;
+    }
+
+    // Execute the given command
+    char ** const argv = args;
+    if (execvp(argv[0], argv) != 0) {
+        print_err("executing command");
+        return 1;
+    }
+
+    return 0;
+}
+
+int main(int argc, char ** argv)
+{
+    // Provide some feedback about the usage
+    if (argc < 2) {
+        fprintf(stderr, "No command specified\n");
+        return 1;
+    }
+
+    // Namespace flags
+    const int flags = CLONE_NEWNET | CLONE_NEWUTS | CLONE_NEWNS | CLONE_NEWIPC |
+                      CLONE_NEWPID | CLONE_NEWUSER | SIGCHLD;
+
+    // Create a new child process
+    pid_t pid = clone(exec, stack + STACKSIZE, flags, &argv[1]);
+
+    if (pid < 0) {
+        print_err("calling clone");
+        return 1;
+    }
+
+    // Wait for the process to finish
+    int status = 0;
+    if (waitpid(pid, &status, 0) == -1) {
+        print_err("waiting for pid");
+        return 1;
+    }
+
+    // Return the exit code
+    return WEXITSTATUS(status);
+}
+```
+
+Purpose of the application is to spawn a new child process in different
+namespaces. Every command provided to the executable will be forwarded to the
+child process. The application terminates, when the command execution is done.
+You can now test an verify the implementation via:
+
+```
+> gcc -o namespaces namespaces.c
+> ./namespaces ip a
+1: lo: <LOOPBACK> mtu 65536 qdisc noop state DOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+> ./namespaces ps aux
+USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+nobody       1  0.0  0.1  36524  1828 pts/0    R+   23:46   0:00 ps aux
+> ./namespaces whoami
+nobody
+```
+
+Feel free to use this as a starting point for your own little experiments with
+the namespace API.
+
+## Putting all Together
 
 Do you remember the rootfs we extracted from the image within the chroot
 section? We can use a low level container runtime like
@@ -597,11 +797,10 @@ the rootfs:
 
 ```
 > sudo runc run -b bundle container
-# ps aux
 ```
 
-If we now inspect the system namespaces, we see that `runc` already created
-mnt, uts, ipc, pid and net for us:
+If we now inspect the system namespaces, we see that `runc` already created mnt,
+uts, ipc, pid and net for us:
 
 ```
 > sudo lsns | grep bash
@@ -617,15 +816,17 @@ blog posts and talks.
 
 ## Conclusion
 
-I really hope that the mysteries about containers are now a little bit more
-fathomable. If you run Linux it is easy to play around with different isolation
-techniques from scratch. In the end a container runtime nicely uses all
-these isolation features to provide a stable and robust development or
-production platform for containers.
+I really hope you’d enjoyed the read and that the mysteries about containers are
+now a little bit more fathomable. If you run Linux it is easy to play around
+with different isolation techniques from scratch. In the end a container runtime
+nicely uses all these isolation features to provide a stable and robust
+development and production platform for containers.
 
-There are a lots of topics which were not covered here because of the level of
-detail. A great resource for digging deeper into the topic of Linux namespaces
-is the Linux programmers manual: NAMESPACES(7).
+There are a lots of topics which were not covered here because I wanted to stay
+at a stable level of detail. For sure, a great resource for digging deeper into
+the topic of Linux namespaces is the Linux programmers manual:
+[`NAMESPACES(7)`](http://man7.org/linux/man-pages/man7/namespaces.7.html).
 
-The next blog posts will cover container runtimes, security and the overall
-ecosystem around latest container technologies.
+Feel free to drop me a line or get in contact with me for any questions or
+feedback. The next blog posts will cover container runtimes, security and the
+overallecosystem around latest container technologies. Stay tuned!
