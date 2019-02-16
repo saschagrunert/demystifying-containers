@@ -1,25 +1,25 @@
 ## Table of Contents
 
-* [Introduction](#introduction)
-* [chroot](#chroot)
-* [Linux Namespaces](#linux-namespaces)
-  * [API](#api)
-    * [clone](#clone)
-    * [unshare](#unshare)
-    * [setns](#setns)
-    * [proc](#proc)
-  * [Available Namespaces](#available-namespaces)
-    * [Mount (mnt)](#mount--mnt-)
-    * [UNIX Time-sharing System (UTS)](#unix-time-sharing-system--uts-)
-    * [Interprocess Communication (IPC)](#interprocess-communication--ipc-)
-    * [Process ID (pid)](#process-id--pid-)
-    * [Network (net)](#network--net-)
-    * [User ID (user)](#user-id--user-)
-    * [Control Group (cgroup)](#control-group--cgroup-)
-  * [Composing Namespaces](#composing-namespaces)
-  * [Demo Application](#demo-application)
-* [Putting all Together](#putting-all-together)
-* [Conclusion](#conclusion)
+- [Introduction](#introduction)
+- [chroot](#chroot)
+- [Linux Namespaces](#linux-namespaces)
+  - [API](#api)
+    - [clone](#clone)
+    - [unshare](#unshare)
+    - [setns](#setns)
+    - [proc](#proc)
+  - [Available Namespaces](#available-namespaces)
+    - [Mount (mnt)](#mount--mnt-)
+    - [UNIX Time-sharing System (UTS)](#unix-time-sharing-system--uts-)
+    - [Interprocess Communication (IPC)](#interprocess-communication--ipc-)
+    - [Process ID (pid)](#process-id--pid-)
+    - [Network (net)](#network--net-)
+    - [User ID (user)](#user-id--user-)
+    - [Control Group (cgroup)](#control-group--cgroup-)
+  - [Composing Namespaces](#composing-namespaces)
+  - [Demo Application](#demo-application)
+- [Putting all Together](#putting-all-together)
+- [Conclusion](#conclusion)
 
 ## Introduction
 
@@ -191,10 +191,10 @@ different views of the system.
 
 Not all available namespaces were implemented from the beginning on. A full
 support for what we now understand as “container ready” was finished in kernel
-version 3.8 back in 2013 with the introduction of the *user* namespace. We end
-up having currently seven distinct namespaces implemented: *mnt, pid, net, ipc,
-uts, user* and *cgroup*. No worries, we discuss them in detail. In September
-2016 two additional namespaces were proposed: *time* and *syslog*, which are not
+version 3.8 back in 2013 with the introduction of the _user_ namespace. We end
+up having currently seven distinct namespaces implemented: _mnt, pid, net, ipc,
+uts, user_ and _cgroup_. No worries, we discuss them in detail. In September
+2016 two additional namespaces were proposed: _time_ and _syslog_, which are not
 fully implemented yet. Let’s have a look into the namespace API before digging
 into certain namespaces.
 
