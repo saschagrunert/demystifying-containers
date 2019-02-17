@@ -1,17 +1,15 @@
 import * as React from 'react';
-import styled from 'react-emotion';
-import { Slide, Heading } from 'spectacle';
-
-const SubTitle = styled(Heading)`
-    margin-top: 0.5em;
-    font-size: 2em;
-`;
+import { Slide, Image, Heading } from 'spectacle';
+import * as img from '../images';
 
 export default (
     <Slide transition={['zoom']} bgColor="secondary">
-        <Heading fit size={1} textColor="purple">
+        <Heading size={4} lineHeight={1.5} textColor="purple">
             Demystifying Containers
         </Heading>
-        <SubTitle textColor="primary">Part I - Kernel Space</SubTitle>
+        <Image src={img.images.logo} />
+        <Heading size={6} textColor="primary">
+            Part I - Kernel Space
+        </Heading>
     </Slide>
 );

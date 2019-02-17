@@ -1,7 +1,7 @@
 import preloader from 'spectacle/lib/utils/preloader';
 
 export const images = {
-    // example: require('../assets/image.jpg'),
+    logo: require('./assets/logo.png'),
 };
 
 preloader(images);
