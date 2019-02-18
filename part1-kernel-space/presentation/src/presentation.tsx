@@ -1,13 +1,10 @@
 import * as React from 'react';
 import { Deck, Text } from 'spectacle';
 import styled from 'react-emotion';
-import { library } from '@fortawesome/fontawesome-svg-core';
-import { fas } from '@fortawesome/free-solid-svg-icons';
 import createTheme from 'spectacle/lib/themes/default';
 import './images';
 
 require('normalize.css');
-library.add(fas);
 
 const theme = createTheme(
     {
