@@ -548,7 +548,7 @@ mapped in the opposite direction.
 
 In the unshare example above we call
 [`getuid(2)`](http://man7.org/linux/man-pages/man2/getuid.2.html) before writing
-a appropriate user mapping, which will result in an unmapped ID. This unmapped
+an appropriate user mapping, which will result in an unmapped ID. This unmapped
 ID is automatically converted to the overflow user ID (65534 or the value in `/proc/sys/kernel/overflow{g,u}id`).
 
 In the end the user namespace enables great security additions to the container
