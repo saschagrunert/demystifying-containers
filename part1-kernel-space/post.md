@@ -319,7 +319,7 @@ have different flavors (shared, slave, private, unbindable), which is greatly
 explained within the shared subtree [documentation of the Linux
 kernel](https://www.kernel.org/doc/Documentation/filesystems/sharedsubtree.txt).
 
-#### UNIX Time-sharing System (UTS)
+#### UNIX Time-sharing System (uts)
 
 The UTS namespace was introduced in Linux 2.6.19 (2006) and allows us to unshare
 the domain- and hostname from the current host system. Let's give it a try:
@@ -343,7 +343,7 @@ nb
 The UTS namespace is yet another nice addition in containerization, especially
 when it comes to container networking related topics.
 
-#### Interprocess Communication (IPC)
+#### Interprocess Communication (ipc)
 
 IPC namespaces came with Linux 2.6.19 (2006) too and isolate interprocess
 communication (IPC) resources. In special these are System V IPC objects and
