@@ -23,3 +23,16 @@ about containers. We will gain an insight about the history of UNIX, Linux and
 talk about solutions like chroot, namespaces and cgroups combined with hacking
 our own examples. Besides this we will peel some containers to get a feeling
 about future topics we will talk about.
+
+You can find the blog post:
+
+- [on GitHub](part1-kernel-space/post.md)
+- [on Medium](https://medium.com/@saschagrunert)
+
+The corresponding talk:
+
+- [on Meetup](http://meetu.ps/e/GrmTm/CJqk6/f)
+- [on YouTube](https://youtu.be/Hb1bsfFyC-Q)
+- [on GitHub (slides only)](part1-kernel-space/slides.html)
+
+## Part II: TDB
