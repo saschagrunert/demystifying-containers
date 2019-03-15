@@ -1,0 +1,2 @@
+*.o
+/part1-kernel-space/talk/lib/fonts/opensans/*
