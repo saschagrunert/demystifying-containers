@@ -28,6 +28,7 @@ You can find the blog post:
 
 - [on GitHub](part1-kernel-space/post.md)
 - [on Medium](https://medium.com/p/2c53d6979504)
+- [on SUSE](https://www.suse.com/c/demystifying-containers-part-i-kernel-space)
 
 The corresponding talk:
 
