@@ -39,6 +39,33 @@ The slides of the talk:
 
 - [on Slides.com](https://slides.com/saschagrunert/demystifying-containers-part-i-kernel-space)
 
+## Part II: Container Runtimes
+
+This second blog post (and talk) is primary scoped to container runtimes, where
+we will start with their historic origins before digging deeper into two
+dedicated projects: runc and CRI-O. We will initially build up a great
+foundation about how container runtimes work under the hood by starting with the
+lower level runtime runc. Afterwards, we will utilize the more advanced runtime
+CRI-O to run Kubernetes native workloads, but without even running Kubernetes at
+all.
+
+You can find the blog post:
+
+- [on GitHub](part2-container-runtimes/post.md)
+- [on Medium]()
+- [on SUSE]()
+
+The corresponding talk:
+
+- [on Meetup](http://meetu.ps/e/GPJ3T/tbX1P/f)
+- [on YouTube](https://youtu.be/UnnAhjJEdH4)
+
+The slides of the talk:
+
+- [on Slides.com](https://slides.com/saschagrunert/demystifying-containers-part-ii-container-runtimes)
+
+---
+
 ## Part X
 
 Further parts of the series are not available yet.
