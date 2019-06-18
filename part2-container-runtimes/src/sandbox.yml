@@ -1,0 +1,7 @@
+---
+metadata:
+  name: sandbox
+  namespace: default
+dns_config:
+  servers:
+    - 8.8.8.8

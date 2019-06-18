@@ -52,8 +52,8 @@ all.
 You can find the blog post:
 
 - [on GitHub](part2-container-runtimes/post.md)
-- [on Medium]()
-- [on SUSE]()
+- [on Medium](https://medium.com/p/e363aa378f25)
+- [on SUSE](https://www.suse.com/c/demystifying-containers-part-ii-container-runtimes)
 
 The corresponding talk:
 

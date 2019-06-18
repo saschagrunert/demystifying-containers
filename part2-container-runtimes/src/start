@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+tmux new -ds crio \
+    crio --log-level=debug \
+    --storage-driver=vfs \
+    --registry=docker.io
+bash
