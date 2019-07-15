@@ -27,6 +27,7 @@ about future topics we will talk about.
 You can find the blog post:
 
 - [on GitHub](part1-kernel-space/post.md)
+- [on CNCF](https://www.cncf.io/blog/2019/06/24/demystifying-containers-part-i-kernel-space)
 - [on Medium](https://medium.com/p/2c53d6979504)
 - [on SUSE](https://www.suse.com/c/demystifying-containers-part-i-kernel-space)
 
@@ -52,6 +53,7 @@ all.
 You can find the blog post:
 
 - [on GitHub](part2-container-runtimes/post.md)
+- [on CNCF](https://www.cncf.io/blog/2019/07/15/demystifying-containers-part-ii-container-runtimes)
 - [on Medium](https://medium.com/p/e363aa378f25)
 - [on SUSE](https://www.suse.com/c/demystifying-containers-part-ii-container-runtimes)
 
