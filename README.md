@@ -66,6 +66,34 @@ The slides of the talk:
 
 - [on Slides.com](https://slides.com/saschagrunert/demystifying-containers-part-ii-container-runtimes)
 
+## Part III: Container Images
+
+This third blog post (and talk) will be all about container images. As usual, we
+start with the historic background and the evolution of different container
+image formats. Afterwards, we will check out what is inside of the latest Open
+Container Initiative (OCI) image specification by crafting, modifying and
+pulling apart our own built container image examples. Beside that, we will learn
+some important best practices in modern container image creation by utilizing
+tools like buildah, podman and skopeo.
+
+<!--
+You can find the blog post:
+
+- [on GitHub](part3-container-images/post.md)
+- [on CNCF]()
+- [on Medium]()
+- [on SUSE]()
+
+The corresponding talk:
+
+- [on Meetup]()
+- [on YouTube]()
+
+The slides of the talk:
+
+- [on Slides.com]()
+-->
+
 ---
 
 ## Part X
