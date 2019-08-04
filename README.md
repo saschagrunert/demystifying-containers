@@ -72,7 +72,7 @@ This third blog post (and talk) will be all about container images. As usual, we
 start with the historic background and the evolution of different container
 image formats. Afterwards, we will check out what is inside of the latest Open
 Container Initiative (OCI) image specification by crafting, modifying and
-pulling apart our own built container image examples. Beside that, we will learn
+pulling apart our self-built container image examples. Besides that, we will learn
 some important best practices in modern container image creation by utilizing
 tools like buildah, podman and skopeo.
 
