@@ -15,6 +15,12 @@ should be much easier to understand how features within the Linux kernel,
 container tools, runtimes, software defined networks and orchestration software
 like Kubernetes are designed and how they work under the hood.
 
+## Table of Contents
+
+- [Part I: Kernel Space](#part-i-kernel-space)
+- [Part II: Container Runtimes](#part-ii-container-runtimes)
+- [Part III: Container Images](#part-iii-container-images)
+
 ## Part I: Kernel Space
 
 This first blog post (and talk) is scoped to Linux kernel related topics, which
@@ -76,23 +82,20 @@ pulling apart our self-built container image examples. Besides that, we will lea
 some important best practices in modern container image creation by utilizing
 tools like buildah, podman and skopeo.
 
-<!--
 You can find the blog post:
 
 - [on GitHub](part3-container-images/post.md)
-- [on CNCF]()
-- [on Medium]()
-- [on SUSE]()
+- [on Medium](https://medium.com/p/244865de6fef)
+- [on SUSE](https://www.suse.com/c/demystifying-containers-part-iii-container-images)
 
 The corresponding talk:
 
-- [on Meetup]()
-- [on YouTube]()
+- [on Meetup](https://www.meetup.com/de-DE/Linux-Meetup-Leipzig/events/263578530)
+- [on YouTube](https://youtu.be/zjUXCKKJb-E)
 
 The slides of the talk:
 
-- [on Slides.com]()
--->
+- [on Slides.com](https://slides.com/saschagrunert/demystifying-containers-part-iii-container-images)
 
 ---
 
