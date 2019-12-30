@@ -20,6 +20,7 @@ like Kubernetes are designed and how they work under the hood.
 - [Part I: Kernel Space](#part-i-kernel-space)
 - [Part II: Container Runtimes](#part-ii-container-runtimes)
 - [Part III: Container Images](#part-iii-container-images)
+- [Part IV: Container Security](#part-iv-container-security)
 
 ## Part I: Kernel Space
 
@@ -96,6 +97,55 @@ The corresponding talk:
 The slides of the talk:
 
 - [on Slides.com](https://slides.com/saschagrunert/demystifying-containers-part-iii-container-images)
+
+## Part IV: Container Security ![note](https://img.shields.io/badge/note-unpublished-yellow)
+
+Security-related topics can be overwhelming, especially when we’re talking
+about the fast-pacing container ecosystem. After encountering multiple security
+vulnerabilities in 2019, the press is now questioning if containers are secure
+enough for our applications and if switching from Virtual Machines (VMs) to
+container-based workloads is really a good idea. Technologies like micro VMs
+target to add an additional layer of security to sensitive applications.
+
+But is security really a problem when speaking about running applications
+inside? It indeed is, if we do not fully understand the implications of the
+security-related possibilities we can apply or if we don’t use them at all.
+
+In this blog post, we will discover the bright world of container security in a
+pragmatic way. We will learn about relatively low level security mechanisms
+like Linux [capabilities][40] or [seccomp][41], but also about fully featured
+security enhancements like [SELinux][42] and [AppArmor][43]. We’ll have the
+chance to build up a common ground of understanding around container security.
+Besides that, we will take a look into securing container workloads at a higher
+level inside [Kubernetes][44] clusters by using [Pod Security Policies][45] and
+by securing the container images itself. To achieve all of this, we will verify
+the results of our experiments by utilising end-user applications like
+Kubernetes and [Podman][46].
+
+[40]: http://man7.org/linux/man-pages/man7/capabilities.7.html
+[41]: https://en.wikipedia.org/wiki/Seccomp
+[42]: https://en.wikipedia.org/wiki/Security-Enhanced_Linux
+[43]: https://en.wikipedia.org/wiki/AppArmor
+[44]: https://kubernetes.io
+[45]: https://kubernetes.io/docs/concepts/policy/pod-security-policy
+[46]: https://podman.io
+
+<!--
+You can find the blog post:
+
+- [on GitHub](part4-container-security/post.md)
+- [on Medium](https://medium.com/p/)
+- [on SUSE](https://www.suse.com/c/demystifying-containers-part-iv-container-security)
+
+The corresponding talk:
+
+- [on Meetup](https://www.meetup.com/de-DE/Linux-Meetup-Leipzig/events/)
+- [on YouTube](https://youtu.be/)
+
+The slides of the talk:
+
+- [on Slides.com](https://slides.com/saschagrunert/demystifying-containers-part-iv-container-security)
+-->
 
 ---
 
