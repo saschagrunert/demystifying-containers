@@ -20,7 +20,7 @@ like Kubernetes are designed and how they work under the hood.
 - [Part I: Kernel Space](#part-i-kernel-space)
 - [Part II: Container Runtimes](#part-ii-container-runtimes)
 - [Part III: Container Images](#part-iii-container-images)
-- [Part IV: Container Security](#part-iv-container-security-)
+- [Part IV: Container Security](#part-iv-container-security)
 
 ## Part I: Kernel Space
 
