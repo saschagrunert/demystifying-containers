@@ -98,7 +98,7 @@ The slides of the talk:
 
 - [on Slides.com](https://slides.com/saschagrunert/demystifying-containers-part-iii-container-images)
 
-## Part IV: Container Security ![note](https://img.shields.io/badge/note-unpublished-yellow)
+## Part IV: Container Security
 
 Security-related topics can be overwhelming, especially when we’re talking
 about the fast-pacing container ecosystem. After encountering multiple security
@@ -119,7 +119,7 @@ chance to build up a common ground of understanding around container security.
 Besides that, we will take a look into securing container workloads at a higher
 level inside [Kubernetes][44] clusters by using [Pod Security Policies][45] and
 by securing the container images itself. To achieve all of this, we will verify
-the results of our experiments by utilising end-user applications like
+the results of our experiments by utilizing end-user applications like
 Kubernetes and [Podman][46].
 
 [40]: http://man7.org/linux/man-pages/man7/capabilities.7.html
@@ -130,22 +130,10 @@ Kubernetes and [Podman][46].
 [45]: https://kubernetes.io/docs/concepts/policy/pod-security-policy
 [46]: https://podman.io
 
-<!--
 You can find the blog post:
 
 - [on GitHub](part4-container-security/post.md)
-- [on Medium](https://medium.com/p/)
 - [on SUSE](https://www.suse.com/c/demystifying-containers-part-iv-container-security)
-
-The corresponding talk:
-
-- [on Meetup](https://www.meetup.com/de-DE/Linux-Meetup-Leipzig/events/)
-- [on YouTube](https://youtu.be/)
-
-The slides of the talk:
-
-- [on Slides.com](https://slides.com/saschagrunert/demystifying-containers-part-iv-container-security)
--->
 
 ---
 
