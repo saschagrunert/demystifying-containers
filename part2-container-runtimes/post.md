@@ -80,7 +80,7 @@ and its internals.
 If we now look back into 2013 we see that there was a tool written called
 _Docker_, which was built on top of the already existing LXC stack. One
 invention of Docker was that the user is now able to package containers into
-images to move them between machines. Docker were the fist ones who tried to
+images to move them between machines. Docker were the first ones who tried to
 make containers a standard software unit, as they state in their [”Standard
 Container Manifesto”](https://github.com/moby/moby/blob/0db56e6c519b19ec16c6fbd12e3cee7dfa6018c5/README.md).
 
