@@ -126,7 +126,7 @@ int main(void)
 ```
 
 We create a new jail by overwriting the current one and change the working
-directly to some relative path outside of the chroot environment. Another call
+directory to some relative path outside of the chroot environment. Another call
 to chroot might bring us outside of the jail which can be verified by spawning a
 new interactive bash shell.
 
