@@ -1,3 +1,5 @@
+> **Part I: Kernel Space** | [Part II: Container Runtimes](../part2-container-runtimes/post.md) | [Part III: Container Images](../part3-container-images/post.md) | [Part IV: Container Security](../part4-container-security/post.md)
+
 ## Table of Contents
 
 - [Introduction](#introduction)
@@ -18,7 +20,7 @@
     - [Control Group (cgroup)](#control-group-cgroup)
   - [Composing Namespaces](#composing-namespaces)
   - [Demo Application](#demo-application)
-- [Putting all Together](#putting-all-together)
+- [Putting it all Together](#putting-it-all-together)
 - [Conclusion](#conclusion)
 
 ## Introduction
@@ -858,3 +860,5 @@ the topic of Linux namespaces is the Linux programmers manual:
 Feel free to drop me a line or get in contact with me for any questions or
 feedback. The next blog posts will cover container runtimes, security and the
 overall ecosystem around latest container technologies. Stay tuned!
+
+> **Part I: Kernel Space** | [Part II: Container Runtimes](../part2-container-runtimes/post.md) | [Part III: Container Images](../part3-container-images/post.md) | [Part IV: Container Security](../part4-container-security/post.md)
