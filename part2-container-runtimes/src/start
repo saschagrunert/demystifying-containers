@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 set -euo pipefail
 
+# Use vfs storage driver for compatibility in nested container environments.
+# Set default registry to docker.io for image pulls.
 tmux new -ds crio \
 	crio --log-level=debug \
 	--storage-driver=vfs \
