@@ -1,5 +1,6 @@
 # Demystifying Containers
 
+[![ci](https://github.com/saschagrunert/demystifying-containers/actions/workflows/ci.yml/badge.svg)](https://github.com/saschagrunert/demystifying-containers/actions/workflows/ci.yml)
 ![logo](logo-fit.png)
 
 This series of blog posts and corresponding talks aims to provide you with a
@@ -116,7 +117,7 @@ like Linux [capabilities][40] or [seccomp][41], but also about fully featured
 security enhancements like [SELinux][42] and [AppArmor][43]. We’ll have the
 chance to build up a common ground of understanding around container security.
 Besides that, we will take a look into securing container workloads at a higher
-level inside [Kubernetes][44] clusters by using [Pod Security Policies][45] and
+level inside [Kubernetes][44] clusters by using [Pod Security Admission][45] and
 by securing the container images itself. To achieve all of this, we will verify
 the results of our experiments by utilizing end-user applications like
 Kubernetes and [Podman][46].
@@ -126,7 +127,7 @@ Kubernetes and [Podman][46].
 [42]: https://en.wikipedia.org/wiki/Security-Enhanced_Linux
 [43]: https://en.wikipedia.org/wiki/AppArmor
 [44]: https://kubernetes.io
-[45]: https://kubernetes.io/docs/concepts/policy/pod-security-policy
+[45]: https://kubernetes.io/docs/concepts/security/pod-security-admission
 [46]: https://podman.io
 
 You can find the blog post:
