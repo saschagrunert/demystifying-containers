@@ -293,7 +293,7 @@ recommended as well. Most of these base images rely on distributions like
 [Debian][41] or [Ubuntu][42], which have tools and libraries included we
 probably do not need at all and broaden the attack surface of the deployment.
 
-[40]: https://github.com/saschagrunert/demystifying-containers/blob/master/part3-container-images/post.md
+[40]: ../part3-container-images/post.md
 [41]: https://debian.org
 [42]: https://ubuntu.com
 

@@ -542,8 +542,17 @@ doesn’t mean that we cannot play around with it, so let’s give it a try.
 I prepared a container image called
 [“crio-playground”](https://hub.docker.com/r/saschagrunert/crio-playground) to
 get started with CRI-O in an efficient manner. This image contains all necessary
-tools, example files and a working CRI-O instance running in the background. To
-start a privileged container running the crio-playground, simply execute:
+tools, example files and a working CRI-O instance running in the background.
+
+If you prefer to build the image locally (or if the published image is
+outdated), you can do so from the Dockerfile in `src/`:
+
+```bash
+> podman build -t crio-playground src/
+```
+
+To start a privileged container running the crio-playground (replace the image
+name with `crio-playground` if you built locally), simply execute:
 
 ```bash
 > sudo podman run --privileged -h crio-playground -it saschagrunert/crio-playground
