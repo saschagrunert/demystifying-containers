@@ -85,7 +85,7 @@ one, where we will focus on the latter part for now.
 What is needed to run an own chroot environment? Not that much, since something
 like this already works:
 
-```
+```bash
 > mkdir -p new-root/{bin,lib64}
 > cp /bin/bash new-root/bin
 > cp /lib64/{ld-linux-x86-64.so*,libc.so*,libdl.so.2,libreadline.so*,libtinfo.so*} new-root/lib64
@@ -143,7 +143,7 @@ Open Container Initiative (OCI) container, which can be easily done with the two
 tools [`skopeo`](https://github.com/containers/skopeo) and
 [`umoci`](https://github.com/openSUSE/umoci):
 
-```
+```bash
 > skopeo copy docker://opensuse/tumbleweed:latest oci:tumbleweed:latest
 [output removed]
 > sudo umoci unpack --image tumbleweed:latest bundle
@@ -153,7 +153,7 @@ tools [`skopeo`](https://github.com/containers/skopeo) and
 Now with our freshly downloaded and extracted rootfs we can chroot into the jail
 via:
 
-```
+```bash
 > sudo chroot bundle/rootfs
 #
 ```
@@ -162,7 +162,7 @@ It looks like we’re running inside a fully working environment, right? But wha
 did we achieve? We can see that we may sneak-peak outside the jail from a
 process perspective:
 
-```
+```bash
 > mkdir /proc
 > mount -t proc proc /proc
 > ps aux
@@ -173,7 +173,7 @@ There is no process isolation available at all. We can even kill programs
 running outside of the jail, what a metaphor! Let’s peek into the network
 devices:
 
-```
+```bash
 > mkdir /sys
 > mount -t sysfs sys /sys
 > ls /sys/class/net
@@ -242,7 +242,7 @@ namespace related files. Since Linux 3.8, each file in `/proc/$PID/ns` is a
 “magic“ link which can be used as a handle for performing operations (like
 `setns(2)`) to the referenced namespace.
 
-```
+```bash
 > ls -Gg /proc/self/ns/
 total 0
 lrwxrwxrwx 1 0 Feb  6 18:32 cgroup -> 'cgroup:[4026531835]'
@@ -280,7 +280,7 @@ jails, but in a more secure fashion. How to create such a namespace? This can be
 easily done via an API function call or the unshare command line tool. So we can
 do this:
 
-```
+```bash
 > sudo unshare -m
 # mkdir mount-dir
 # mount -n -o size=10m -t tmpfs tmpfs mount-dir
@@ -293,7 +293,7 @@ tmpfs              10240     0     10240   0% <PATH>/mount-dir
 Looks like we have a successfully mounted tmpfs, which is not available on the
 host system level:
 
-```
+```bash
 > ls mount-dir
 > grep mount-dir /proc/mounts
 >
@@ -309,7 +309,7 @@ even without root permissions.
 On the host system we are able to see the mount point via the `mountinfo` file
 inside of the `proc` filesystem:
 
-```
+```bash
 > grep mount-dir /proc/$(pgrep -u root bash)/mountinfo
 349 399 0:84 / /mount-dir rw,relatime - tmpfs tmpfs rw,size=1024k
 ```
@@ -328,7 +328,7 @@ kernel](https://www.kernel.org/doc/Documentation/filesystems/sharedsubtree.txt).
 The UTS namespace was introduced in Linux 2.6.19 (2006) and allows us to unshare
 the domain- and hostname from the current host system. Let’s give it a try:
 
-```
+```bash
 > sudo unshare -u
 # hostname
 nb
@@ -339,7 +339,7 @@ new-hostname
 
 And if we look at the system level nothing has changed, hooray:
 
-```
+```bash
 > hostname
 nb
 ```
@@ -376,7 +376,7 @@ the host PID 1. In addition the termination of this process will immediately
 terminate all processes in its PID namespace and any descendants. Let’s create a
 new PID namespace:
 
-```
+```bash
 > sudo unshare -fp --mount-proc
 # ps aux
 USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
@@ -397,7 +397,7 @@ virtualize the network stack. Each network namespace contains its own resource
 properties within `/proc/net`. Furthermore, a network namespace contains only a
 loopback interface on initial creation. Let’s create one:
 
-```
+```bash
 > sudo unshare -n
 # ip l
 1: lo: <LOOPBACK> mtu 65536 qdisc noop state DOWN mode DEFAULT group default qlen 1000
@@ -424,7 +424,7 @@ be assigned to the target container. This is how pod networks like
 Let’s see how it works. First, we need to create a new network namespace, which
 can be done via `ip`, too:
 
-```
+```bash
 > sudo ip netns add mynet
 > sudo ip netns list
 mynet
@@ -438,7 +438,7 @@ within it.
 With `ip netns exec` we can inspect and manipulate our network namespace even
 further:
 
-```
+```bash
 > sudo ip netns exec mynet ip l
 1: lo: <LOOPBACK> mtu 65536 qdisc noop state DOWN mode DEFAULT group default qlen 1000
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
@@ -448,7 +448,7 @@ connect: Network is unreachable
 
 The network seems down, let’s bring it up:
 
-```
+```bash
 > sudo ip netns exec mynet ip link set dev lo up
 > sudo ip netns exec mynet ping 127.0.0.1
 PING 127.0.0.1 (127.0.0.1) 56(84) bytes of data.
@@ -457,7 +457,7 @@ PING 127.0.0.1 (127.0.0.1) 56(84) bytes of data.
 
 Hooray! Now let’s create a veth pair which should allow communication later on:
 
-```
+```bash
 > sudo ip link add veth0 type veth peer name veth1
 > sudo ip link show type veth
 11: veth1@veth0: <BROADCAST,MULTICAST,M-DOWN> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 1000
@@ -470,7 +470,7 @@ Both interfaces are automatically connected, which means that packets sent to
 `veth0` will be received by `veth1` and vice versa. Now we associate one end of
 the veth pair to our network namespace:
 
-```
+```bash
 > sudo ip link set veth1 netns mynet
 > ip link show type veth
 12: veth0@if11: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 1000
@@ -479,7 +479,7 @@ the veth pair to our network namespace:
 
 Our network interfaces need some addresses for sure:
 
-```
+```bash
 > sudo ip netns exec mynet ip addr add 172.2.0.1/24 dev veth1
 > sudo ip netns exec mynet ip link set dev veth1 up
 > sudo ip addr add 172.2.0.2/24 dev veth0
@@ -488,7 +488,7 @@ Our network interfaces need some addresses for sure:
 
 Communicating in both directions should now be possible:
 
-```
+```bash
 > ping -c1 172.2.0.1
 PING 172.2.0.1 (172.2.0.1) 56(84) bytes of data.
 64 bytes from 172.2.0.1: icmp_seq=1 ttl=64 time=0.036 ms
@@ -521,7 +521,7 @@ outside a user namespace while being fully privileged inside.
 
 Let’s give it a try:
 
-```
+```bash
 > id -u
 1000
 > unshare -U
@@ -536,7 +536,7 @@ once to define the mappings.
 In general each line within these files contain a one to one mapping of a range
 of contiguous user IDs between two user namespaces and could look like this:
 
-```
+```bash
 > cat /proc/$PID/uid_map
 0 1000 1
 ```
@@ -584,7 +584,7 @@ Let’s play around with cgroups and create a new one. By default, the kernel
 exposes cgroups in `/sys/fs/cgroup`. To create a new cgroup, we simply create a
 new sub-directory on that location:
 
-```
+```bash
 > sudo mkdir /sys/fs/cgroup/memory/demo
 > ls /sys/fs/cgroup/memory/demo
 cgroup.clone_children
@@ -620,7 +620,7 @@ You can see that there are already some default values exposed there. Now, we ar
 able to set the memory limits for that cgroup. We are also turning off swap to
 make our example implementation work.
 
-```
+```bash
 > sudo su
 # echo 100000000 > /sys/fs/cgroup/memory/demo/memory.limit_in_bytes
 # echo 0 > /sys/fs/cgroup/memory/demo/memory.swappiness
@@ -629,7 +629,7 @@ make our example implementation work.
 To assign a process to a cgroup we can write the corresponding PID to the
 `cgroup.procs` file:
 
-```
+```bash
 # echo $$ > /sys/fs/cgroup/memory/demo/cgroup.procs
 ```
 
@@ -650,7 +650,7 @@ pub fn main() {
 If we run the program, we see that the PID will be killed because of the set
 memory constraints. So our host system is still usable.
 
-```
+```bash
 # rustc memory.rs
 # ./memory
 10 MB
@@ -673,7 +673,7 @@ interface, like it is done in Kubernetes Pods.
 
 To demonstrate this, let’s create a new namespace with an isolated PID:
 
-```
+```bash
 > sudo unshare -fp --mount-proc
 # ps aux
 USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
@@ -685,14 +685,14 @@ The `setns(2)` syscall with its appropriate wrapper program `nsenter` can now be
 used to join the namespace. For this we have to find out which namespace we want
 to join:
 
-```
+```bash
 > export PID=$(pgrep -u root bash)
 > sudo ls -l /proc/$PID/ns
 ```
 
 Now, it is easily possible to join the namespace via `nsenter`:
 
-```
+```bash
 > sudo nsenter --pid=/proc/$PID/ns/pid unshare --mount-proc
 # ps aux
 root         1  0.1  0.0  10804  8840 pts/1    S+   14:25   0:00 -bash
@@ -799,7 +799,7 @@ namespaces. Every command provided to the executable will be forwarded to the
 new child process. The application terminates, when the command execution is
 done. You can test and verify the implementation via:
 
-```
+```bash
 > gcc -o namespaces namespaces.c
 > ./namespaces ip a
 1: lo: <LOOPBACK> mtu 65536 qdisc noop state DOWN group default qlen 1000
@@ -823,14 +823,14 @@ section? We can use a low level container runtime like
 [`runc`](https://github.com/opencontainers/runc) to easily run a container from
 the rootfs:
 
-```
+```bash
 > sudo runc run -b bundle container
 ```
 
 If we now inspect the system namespaces, we see that `runc` already created mnt,
 uts, ipc, pid and net for us:
 
-```
+```bash
 > sudo lsns | grep bash
 4026532499 mnt         1  6409 root   /bin/bash
 4026532500 uts         1  6409 root   /bin/bash
