@@ -121,7 +121,7 @@ by securing the container images itself. To achieve all of this, we will verify
 the results of our experiments by utilizing end-user applications like
 Kubernetes and [Podman][46].
 
-[40]: http://man7.org/linux/man-pages/man7/capabilities.7.html
+[40]: https://man7.org/linux/man-pages/man7/capabilities.7.html
 [41]: https://en.wikipedia.org/wiki/Seccomp
 [42]: https://en.wikipedia.org/wiki/Security-Enhanced_Linux
 [43]: https://en.wikipedia.org/wiki/AppArmor

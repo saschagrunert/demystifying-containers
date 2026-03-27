@@ -377,7 +377,7 @@ follows the [Unix Philosophy][21] and concentrates on the single dedicated task
 of building OCI container images.
 
 [20]: https://github.com/containers/buildah
-[21]: https://en.m.wikipedia.org/wiki/Unix_philosophy
+[21]: https://en.wikipedia.org/wiki/Unix_philosophy
 
 ## Buildah
 

@@ -77,7 +77,7 @@ Mostly every UNIX operating system has the possibility to change the root
 directory of the current running process (and its children). This originates
 from the first occurrence of chroot in UNIX Version 7 (released 1979), from
 where it continued the journey into the awesome Berkeley Software Distribution
-(BSD). In Linux you can nowadays [`chroot(2)`](http://man7.org/linux/man-pages/man2/chroot.2.html) as system call (a kernel
+(BSD). In Linux you can nowadays [`chroot(2)`](https://man7.org/linux/man-pages/man2/chroot.2.html) as system call (a kernel
 API function call) or the corresponding standalone wrapper program. Chroot is also
 referenced as “jail“, because some person used it as a honeypot to monitor a
 security hacker back in 1991. So chroot is much older than Linux and it has been
@@ -136,7 +136,7 @@ to chroot might bring us outside of the jail which can be verified by spawning a
 new interactive bash shell.
 
 Nowadays chroot is not used by container runtimes any more and was replaced by
-[`pivot_root(2)`](http://man7.org/linux/man-pages/man2/pivot_root.2.html), which
+[`pivot_root(2)`](https://man7.org/linux/man-pages/man2/pivot_root.2.html), which
 has the benefit of putting the old mounts into a separate directory on calling.
 These old mounts could be unmounted afterwards to make the filesystem completely
 invisible to broken out processes.
@@ -214,9 +214,9 @@ The namespace API of the Linux kernel consists of three main system calls:
 
 #### clone
 
-The [`clone(2)`](http://man7.org/linux/man-pages/man2/clone.2.html) API function
+The [`clone(2)`](https://man7.org/linux/man-pages/man2/clone.2.html) API function
 creates a new child process, in a manner similar to
-[`fork(2)`](http://man7.org/linux/man-pages/man2/fork.2.html). Unlike `fork(2)`,
+[`fork(2)`](https://man7.org/linux/man-pages/man2/fork.2.html). Unlike `fork(2)`,
 the `clone(2)` API allows the child process to share parts of its execution
 context with the calling process, such as the memory space, the table of file
 descriptors, and the table of signal handlers. You can pass different namespace
@@ -226,7 +226,7 @@ flags to `clone(2)` to create new namespaces for the child process.
 
 #### unshare
 
-The function [`unshare(2)`](http://man7.org/linux/man-pages/man2/unshare.2.html)
+The function [`unshare(2)`](https://man7.org/linux/man-pages/man2/unshare.2.html)
 allows a process to disassociate parts of the execution context which are currently
 being shared with others.
 
@@ -234,7 +234,7 @@ being shared with others.
 
 #### setns
 
-The function [`setns(2)`](http://man7.org/linux/man-pages/man2/setns.2.html)
+The function [`setns(2)`](https://man7.org/linux/man-pages/man2/setns.2.html)
 reassociates the calling thread with the provided namespace file descriptor.
 This function can be used to join an existing namespace.
 
@@ -553,18 +553,18 @@ since the defined length is `1`.
 If now a process tries to access a file, its user and group IDs are mapped into
 the initial user namespace for the purpose of permission checking. When a
 process retrieves file user and group IDs (via
-[`stat(2)`](http://man7.org/linux/man-pages/man2/fstat.2.html)), the IDs are
+[`stat(2)`](https://man7.org/linux/man-pages/man2/fstat.2.html)), the IDs are
 mapped in the opposite direction.
 
 In the unshare example (we did above) we implicitly call
-[`getuid(2)`](http://man7.org/linux/man-pages/man2/getuid.2.html) before writing
+[`getuid(2)`](https://man7.org/linux/man-pages/man2/getuid.2.html) before writing
 an appropriate user mapping, which will result in an unmapped ID. This unmapped
 ID is automatically converted to the overflow user ID (65534 or the value
 in `/proc/sys/kernel/overflow{g,u}id`).
 
 The file `/proc/$PID/setgroups` contains either `allow` or `deny` to enable or
 disable the permission to call the
-[`setgroups(2)`](http://man7.org/linux/man-pages/man2/setgroups.2.html) syscall
+[`setgroups(2)`](https://man7.org/linux/man-pages/man2/setgroups.2.html) syscall
 within the user namespace. The file was added to address an added security issue
 introduced with the user namespace: It would be possible to an unprivileged
 process to create a new namespace in which the user had all privileges. This
@@ -890,7 +890,7 @@ provide a stable and robust development and production platform for containers.
 There are lots of topics which were not covered here because I wanted to stay
 at a stable level of detail. For sure, a great resource for digging deeper into
 the topic of Linux namespaces is the Linux programmers manual:
-[`NAMESPACES(7)`](http://man7.org/linux/man-pages/man7/namespaces.7.html).
+[`NAMESPACES(7)`](https://man7.org/linux/man-pages/man7/namespaces.7.html).
 
 Feel free to drop me a line or get in contact with me for any questions or
 feedback. The next blog posts will cover container runtimes, security and the
