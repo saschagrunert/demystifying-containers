@@ -647,7 +647,7 @@ building modern application sandboxes.
 
 [70]: https://en.wikipedia.org/wiki/Seccomp
 
-Linux 3.5 back in 2012 added a filter mode based on the Berkley Packet Filter
+Linux 3.5 back in 2012 added a filter mode based on the Berkeley Packet Filter
 (BPF) syntax. A lot of tools started to support seccomp from that point in time,
 for example [Chrome/Chromium][71], [OpenSSH][72], [vsftpd][73] and [Firefox
 OS][74].

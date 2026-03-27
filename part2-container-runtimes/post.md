@@ -260,7 +260,7 @@ information to the specification.
 Let’s create a new container from the bundle with runc. Before actually calling
 out to runc, we have to setup a receiver terminal to be able to interact with
 the container. For this, we can use the
-[recvtty](https://github.com/opencontainers/runc/blob/master/contrib/cmd/recvtty/recvtty.go)
+[recvtty](https://github.com/opencontainers/runc/blob/main/tests/cmd/recvtty/recvtty.go)
 tool included in the runc repository:
 
 ```bash
