@@ -87,7 +87,6 @@ You can find the blog post:
 
 - [on GitHub](part3-container-images/post.md)
 - [on Medium](https://medium.com/p/244865de6fef)
-- [on SUSE](https://www.suse.com/c/demystifying-containers-part-iii-container-images)
 
 The corresponding talk:
 

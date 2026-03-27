@@ -38,7 +38,7 @@ to these questions we first have to take one step back:
 > “As a company, am I able to afford the costs of a healthy [Dev(sec)ops][10]
 > strategy?”
 
-[10]: https://en.m.wikipedia.org/wiki/Devsecops
+[10]: https://en.wikipedia.org/wiki/DevSecOps
 
 Probably not?
 
@@ -670,7 +670,7 @@ current non-root user. The `--mount` automatically does the mounting for us,
 whereas we expose the resulting path to the `$MOUNT` environment variable.
 
 After that, we’re free to modify the filesystem locally as we want it. Once
-we’re done, then the changes need to be committed, whereas the mount 
+we’re done, then the changes need to be committed, whereas the mount
 automatically gets removed when leaving the `buildah unshare` session.
 
 That’s it, we successfully modified the containers filesystem via a local mount!
