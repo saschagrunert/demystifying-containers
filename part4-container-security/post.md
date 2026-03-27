@@ -10,11 +10,13 @@
   - [Tags and Digests](#tags-and-digests)
   - [Image Labels](#image-labels)
   - [Signing](#signing)
+    - [Sigstore and cosign](#sigstore-and-cosign)
   - [Encryption](#encryption)
 - [Container Runtimes](#container-runtimes)
   - [Secure Computing (Seccomp)](#secure-computing-seccomp)
   - [SELinux and AppArmor](#selinux-and-apparmor)
 - [Kubernetes](#kubernetes)
+  - [Pod Security Admission (PSA)](#pod-security-admission-psa)
 - [Our Application](#our-application)
 - [Conclusion](#conclusion)
 
@@ -482,6 +484,42 @@ because it has no native support for image signing yet.
 [52]: https://github.com/containers/skopeo
 [53]: https://cri-o.io
 
+#### Sigstore and cosign
+
+While GPG-based signing works, it requires manual key management and
+distribution. [Sigstore][61] provides a modern alternative through its
+[cosign][62] tool, which has become the standard for container image signing.
+
+Cosign supports keyless signing using OIDC identity providers (e.g., GitHub,
+Google). This eliminates the need to generate, store and rotate signing keys.
+Every signature is recorded in the [Rekor][63] transparency log, providing a
+public, tamper-resistant audit trail. Signing and verifying an image looks like
+this:
+
+```bash
+> cosign sign --yes <image>
+> cosign verify \
+    --certificate-identity=user@example.com \
+    --certificate-oidc-issuer=https://accounts.google.com \
+    <image>
+```
+
+With keyless signing, cosign authenticates through an OIDC flow and obtains a
+short-lived certificate from the [Fulcio][64] certificate authority. The
+certificate and signature are then stored in the transparency log. Verification
+checks the signature, the certificate chain and the log entry, so no private
+key material needs to be shared or protected long-term.
+
+Major container registries support cosign signatures, and Kubernetes admission
+controllers like [Kyverno][94] and [OPA Gatekeeper][95] can enforce signature
+verification at deploy time. This makes it straightforward to require that only
+signed images are admitted into a cluster.
+
+[61]: https://sigstore.dev
+[62]: https://github.com/sigstore/cosign
+[63]: https://github.com/sigstore/rekor
+[64]: https://github.com/sigstore/fulcio
+
 ### Encryption
 
 Analogue to image signing, container image encryption can add an additional
@@ -891,13 +929,17 @@ say is that securing the cluster components of Kubernetes is only one essential
 part of running workloads in production.
 
 Kubernetes provides nice mechanisms to also secure running workloads. Storing
-sensitive data in [Secrets][92] is just one of them. Another great example is
-the usage of Pod Security Policies (PSP), which enable fine-grained
+sensitive data in [Secrets][92] is just one of them. One historically important
+example is Pod Security Policies (PSP), which enabled fine-grained
 authorization of pod creation and updates. A PSP defines a set of conditions
 that a pod must run with in order to be accepted by Kubernetes at all, as well
 as defining defaults for them. For example, this allows administrators to
 control whether workloads are allowed to run privileged, their allowed Linux
 capabilities, the SELinux context or permitted AppArmor profiles.
+
+**Note: Pod Security Policies were deprecated in Kubernetes 1.21 and removed in
+Kubernetes 1.25.** The PSP example below is kept for historical context. Their
+replacement is Pod Security Admission (PSA), covered after the example.
 
 [92]: https://kubernetes.io/docs/concepts/configuration/secret
 
@@ -962,6 +1004,45 @@ application developers could be authorized to create only highly unprivileged
 workloads. This leads into a higher level of security in production whereas the
 application developers now have to think of how to deploy the workloads without
 relying on a large set of privileges.
+
+### Pod Security Admission (PSA)
+
+Since Kubernetes 1.25, Pod Security Admission replaces PSPs as the built-in
+mechanism for enforcing security constraints on pods. PSA is simpler: instead
+of defining custom policy objects, it uses three predefined [Pod Security
+Standards][93]:
+
+- **Privileged**: Unrestricted; no constraints applied.
+- **Baseline**: Prevents known privilege escalations (e.g., hostNetwork,
+  privileged containers) while remaining broadly compatible.
+- **Restricted**: Follows current hardening best practices (e.g., must run as
+  non-root, drops all capabilities).
+
+[93]: https://kubernetes.io/docs/concepts/security/pod-security-standards
+
+These standards are applied at the namespace level through labels. Each label
+specifies a mode: `enforce` (reject violating pods), `audit` (log violations),
+or `warn` (show warnings to the user). For example:
+
+```yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: my-namespace
+  labels:
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/warn: restricted
+```
+
+This configuration rejects any pod in `my-namespace` that does not meet the
+Restricted standard and also warns the user about violations. Compared to PSPs,
+PSA is easier to adopt because it requires no additional RBAC bindings or
+policy objects. The trade-off is less granularity; for more complex use cases,
+third-party admission controllers like [Kyverno][94] or [OPA Gatekeeper][95]
+can fill the gap.
+
+[94]: https://kyverno.io
+[95]: https://open-policy-agent.github.io/gatekeeper
 
 ## Our Application
 

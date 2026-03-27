@@ -665,6 +665,38 @@ memory constraints. So our host system is still usable.
 Killed
 ```
 
+The example above uses the cgroups v1 interface, where each controller (memory,
+cpu, etc.) has its own hierarchy under `/sys/fs/cgroup/<controller>`. Since
+then, cgroups v2 has become the standard on most modern Linux distributions and
+is the default in Kubernetes 1.25 and later.
+
+Cgroups v2 replaces the per-controller directory trees with a single unified
+hierarchy mounted at `/sys/fs/cgroup`. Controllers are enabled or disabled per
+cgroup through the `cgroup.subtree_control` file. For example, to enable the
+memory and cpu controllers for child cgroups:
+
+```bash
+> echo "+memory +cpu" > /sys/fs/cgroup/demo/cgroup.subtree_control
+```
+
+The interface files also changed. The memory limit is set via `memory.max`
+instead of `memory.limit_in_bytes`, and the CPU controller uses weight-based
+allocation through `cpu.weight` (range 1-10000, default 100) instead of the
+old `cpu.shares` mechanism. A simple memory limit under cgroups v2 looks like
+this:
+
+```bash
+> mkdir /sys/fs/cgroup/demo
+> echo 100000000 > /sys/fs/cgroup/demo/memory.max
+> echo 0 > /sys/fs/cgroup/demo/memory.swap.max
+> echo $$ > /sys/fs/cgroup/demo/cgroup.procs
+```
+
+The unified hierarchy simplifies cgroup management and avoids inconsistencies
+that could arise when controllers had independent directory trees. If you are
+working with recent distributions or Kubernetes clusters, you will almost
+certainly be interacting with cgroups v2.
+
 ### Composing Namespaces
 
 Namespaces are composable, too! This reveals their true power and makes
