@@ -11,7 +11,7 @@ applications.
 
 Simple examples paired with the historic background will guide you from the
 beginning with a minimal Linux environment up to crafting secure containers,
-which fit perfectly into todays’ and futures’ orchestration world. In the end it
+which fit perfectly into today’s and future orchestration world. In the end it
 should be much easier to understand how features within the Linux kernel,
 container tools, runtimes, software defined networks and orchestration software
 like Kubernetes are designed and how they work under the hood.
@@ -127,7 +127,7 @@ The slides of the talk:
 
 Security-related topics can be overwhelming, especially when we’re talking
 about the fast-pacing container ecosystem. After encountering multiple security
-vulnerabilities in 2019, the press is now questioning if containers are secure
+vulnerabilities in 2019, the press questioned if containers are secure
 enough for our applications and if switching from Virtual Machines (VMs) to
 container-based workloads is really a good idea. Technologies like micro VMs
 target to add an additional layer of security to sensitive applications.

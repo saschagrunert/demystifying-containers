@@ -49,7 +49,7 @@ a sightly different opinion about what a container runtime should do and
 support. For example, systemd is able to run containers via
 [systemd-nspawn](https://www.freedesktop.org/software/systemd/man/latest/systemd-nspawn.html),
 and [NixOS](https://nixos.org) has integrated
-[container management](https://nixos.org/nixos/manual/#ch-containers) as well. Not
+[container management](https://nixos.org/manual/nixos/stable/#ch-containers) as well. Not
 to mention all the other existing container runtimes like
 [CRI-O](https://cri-o.io),
 [Kata Containers](https://katacontainers.io),
@@ -58,8 +58,8 @@ to mention all the other existing container runtimes like
 [containerd](https://containerd.io),
 [LXC](https://linuxcontainers.org),
 [runc](https://github.com/opencontainers/runc),
-[Nabla Containers](https://nabla-containers.github.io) and many more. A lot of
-them are now part of the
+[Nabla Containers](https://nabla-containers.github.io) (now inactive) and many
+more. A lot of them are now part of the
 [Cloud Native Computing Foundation (CNCF)](https://www.cncf.io) and their
 [huge landscape](https://landscape.cncf.io), whereas someone might ask:
 _”Why do so many container runtimes exist?”_.
@@ -91,7 +91,7 @@ Container Manifesto”](https://github.com/moby/moby/blob/0db56e6c519b19ec16c6fb
 
 Some years later they began to work on
 [libcontainer](https://github.com/docker/libcontainer), a
-[Go](https://golang.org/) native way to spawn and manage containers. LMCTFY
+[Go](https://go.dev) native way to spawn and manage containers. LMCTFY
 was abandoned during that time too, whereas the core concepts and major benefits
 of LMCTFY were ported into libcontainer and Docker.
 
@@ -269,7 +269,7 @@ the container. For this, we can use the
 tool included in the runc repository:
 
 ```bash
-> go get github.com/opencontainers/runc/contrib/cmd/recvtty
+> go install github.com/opencontainers/runc/contrib/cmd/recvtty@latest
 > recvtty tty.sock
 ```
 
@@ -464,7 +464,7 @@ future blog posts as well, but for now that should suffice on that level.
 Another drawback in running containers only with runc would be that we have to
 manually set up the networking to the host to reach out to the internet or other
 containers. In order to do that we could use the
-[Runtime Specification Hooks](https://github.com/opencontainers/runtime-spec/blob/master/config.md#posix-platform-hooks)
+[Runtime Specification Hooks](https://github.com/opencontainers/runtime-spec/blob/main/config.md#posix-platform-hooks)
 feature to set up a default bridge before actually starting the container.
 
 But why don’t we leave this job to a higher level runtime as well? Let’s go for
@@ -525,8 +525,8 @@ Container Runtime Interface and the Open Container Initiative. Isn't that
 simple? CRI-O’s journey started as Kubernetes incubator project back in 2016
 under the name _Open Container Initiative Daemon_ (OCID). Version 1.0.0 has been
 released one year later in 2017 and follows the Kubernetes release cycles from
-that day on. This means for example, that the Kubernetes version 1.15 can be
-safely used together with CRI-O 1.15 and so on.
+that day on. This means for example, that the Kubernetes version 1.31 can be
+safely used together with CRI-O 1.31 and so on.
 
 The implementation of CRI-O follows the main UNIX philosophy and tends to be a
 lightweight alternative to Docker or containerd when it comes to running
@@ -756,7 +756,7 @@ runtime specification and test different configurations within the
 crio-playground environment. For sure we will see CRI-O in the future again when
 we talk about container-related topics like security or networking. Besides
 that, we will have the chance to explore different tools like
-[podman](https://github.com/containers/libpod),
+[podman](https://github.com/containers/podman),
 [buildah](https://github.com/containers/buildah) or
 [skopeo](https://github.com/containers/skopeo), which provide more advanced
 container management solutions. I really hope you enjoyed the read and will

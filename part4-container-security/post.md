@@ -54,7 +54,7 @@ doing [DevOps][12] any more, it’s more important to fully support a
 to be able to work on the full stack from conception to operations.
 
 [12]: https://en.wikipedia.org/wiki/DevOps
-[13]: https://www.devsecops.org/blog/2015/2/15/what-is-devsecops
+[13]: https://en.wikipedia.org/wiki/DevSecOps
 
 > A key skill of software engineers is to understand the security implications
 > of the software they maintain, whereas a key skill of their managers is to
@@ -87,7 +87,7 @@ bunch of work.
 [16]: https://azure.microsoft.com/en-in/services/kubernetes-service
 
 But what does a company do which already has infrastructure at hand and is
-relying on an on-premise solution like [SUSE CaaS Platform][17] or [Red Hat
+relying on an on-premise solution like [SUSE Rancher][17] or [Red Hat
 OpenShift][18]? Well, they’re probably fine with having a slightly higher
 flexibility by still passing over security related topics to the hands of the
 vendors. The higher level of freedom with on-premise solutions still requires to
@@ -96,7 +96,7 @@ to act accordingly in case of an emergency. Let’s start from the lowest level 
 the Linux Kernel to learn which types of security enhancements we have to
 consider under that domain.
 
-[17]: https://suse.com/products/caas-platform
+[17]: https://www.suse.com/products/rancher
 [18]: https://openshift.com
 
 ## The Linux Kernel
@@ -114,7 +114,7 @@ overall good sign.
 [20]: https://github.com/saschagrunert/demystifying-containers#table-of-contents
 [21]: https://man7.org/linux/man-pages/man7/namespaces.7.html
 
-The latest user namespace related vulnerability is [CVE-2018-18955][22], which
+One notable user namespace related vulnerability is [CVE-2018-18955][22], which
 uses a bug in kernel-to-namespace ID transformation. The vulnerability allows
 privilege escalation because it mishandles nested user namespaces with more than
 5 UID or GID ranges. A user who has the Linux capability [`CAP_SYS_ADMIN`][23]
@@ -151,7 +151,7 @@ more complicated.
 
 Capabilities are implemented in Linux using the extended file system attributes
 ([`xattr(7)`][31]), which are supported by all major Linux file systems like
-ext2-4, btrfs, JFS, XFS, and Reiserfs. We can use the `getcap` utility to
+ext2-4, btrfs, JFS and XFS. We can use the `getcap` utility to
 retrieve the capabilities a binary has, for example:
 
 [31]: https://man7.org/linux/man-pages/man7/xattr.7.html
@@ -326,7 +326,7 @@ this:
 [48]: https://alpinelinux.org
 
 ```Dockerfile
-FROM alpine:3.11
+FROM alpine:3.21
 COPY app /app
 
 RUN addgroup -g 1000 -S username && \
@@ -393,12 +393,18 @@ COPY --from=intermediate /file .
 In a Continuous Integration and Deployment (CI/CD) pipeline it might be better
 to locally rely on previous build steps which provides the secret file and copy
 them into the build context. To do this, the dedicated mount feature of Podman
-or CRI-O could be utilized to securely copy that file. First, we have to edit
-the system global mounts file: `/etc/containers/mounts.conf`:
+or CRI-O could be utilized to securely copy that file. First, we have to add a
+volume entry in `/etc/containers/containers.conf`:
+
+```toml
+[containers]
+volumes = ["/home/sascha/secret:/run/secret:ro"]
+```
+
+After creating the secret file:
 
 ```bash
 echo my-secret > /home/sascha/secret
-echo /home/sascha/secret:/run/secret | sudo tee -a /etc/containers/mounts.conf
 ```
 
 Then we can access this directory from any container workload:
@@ -571,15 +577,19 @@ identically under gVisor's emulated kernel.
 [59]: https://katacontainers.io
 [59a]: https://gvisor.dev
 
-An example for a high severity runc vulnerability is [CVE-2019-5736][60], which
-affects runc versions prior to v1.0.0-rc7. The root cause of the vulnerability
-was a file-descriptor mishandling in conjunction to `/proc/self/exe`. This issue
-can be used to gain access to the host system when running a malicious container
-image or trapping a user running an `attach` by doing an `exec` command to a
-container. In terms of malicious container images, we can defer to the
-previously described security enhancements to prevent such a vulnerability.
+An example for a high severity runc vulnerability is [CVE-2019-5736][60] (fixed
+in runc v1.0.0-rc7). A more recent example is [CVE-2024-21626][60a], a
+container escape through leaked file descriptors affecting runc before v1.1.12.
+
+The root cause of CVE-2019-5736 was a file-descriptor mishandling in conjunction
+to `/proc/self/exe`. This issue can be used to gain access to the host system
+when running a malicious container image or trapping a user running an `attach`
+by doing an `exec` command to a container. In terms of malicious container
+images, we can defer to the previously described security enhancements to
+prevent such a vulnerability.
 
 [60]: https://nvd.nist.gov/vuln/detail/CVE-2019-5736
+[60a]: https://nvd.nist.gov/vuln/detail/CVE-2024-21626
 
 It gets a bit trickier if a possible attacker already has access to the running
 container, maybe by utilizing another unknown vulnerability inside our own
@@ -617,12 +627,12 @@ container and wait this way for the `exec` to happen:
 ```go
 pid := 0
 for pid == 0 {
-	pids, err := ioutil.ReadDir("/proc")
+	pids, err := os.ReadDir("/proc")
 	if err != nil {
 		// …
 	}
 	for _, f := range pids {
-		fd, _ := ioutil.ReadFile("/proc/" + f.Name() + "/cmdline")
+		fd, _ := os.ReadFile("/proc/" + f.Name() + "/cmdline")
 		if strings.Contains(string(fd), "runc") {
 			log.Println("found PID:", f.Name())
 			pid, err = strconv.Atoi(f.Name())
@@ -700,13 +710,13 @@ building modern application sandboxes.
 
 Linux 3.5 back in 2012 added a filter mode based on the Berkeley Packet Filter
 (BPF) syntax. A lot of tools started to support seccomp from that point in time,
-for example [Chrome/Chromium][71], [OpenSSH][72], [vsftpd][73] and [Firefox
-OS][74].
+for example [Chrome/Chromium][71], [OpenSSH][72], [vsftpd][73] and
+[systemd][74].
 
 [71]: https://chromium.org
 [72]: https://openssh.com
 [73]: https://security.appspot.com/vsftpd.html
-[74]: https://en.wikipedia.org/wiki/Firefox_OS
+[74]: https://systemd.io
 
 In terms of containers, runtimes supporting seccomp can pass a seccomp profile
 to a container, which is basically a JSON whitelist of specified system calls.
@@ -861,10 +871,10 @@ level. To create a new AppArmor profile, we can write a new file in
 `/etc/apparmor.d/no_raw_net`:
 
 ```apparmor
-#include <tunables/global>
+include <tunables/global>
 
 profile no-ping flags=(attach_disconnected,mediate_deleted) {
-  #include <abstractions/base>
+  include <abstractions/base>
 
   network inet tcp,
   network inet udp,
