@@ -92,7 +92,7 @@ You can find the blog post:
 
 The corresponding talk:
 
-- [on Meetup](http://meetu.ps/e/GPJ3T/tbX1P/f)
+- [on Meetup](https://meetu.ps/e/GPJ3T/tbX1P/f)
 - [on YouTube](https://youtu.be/UnnAhjJEdH4)
 
 The slides of the talk:
