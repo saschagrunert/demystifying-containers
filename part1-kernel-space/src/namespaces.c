@@ -35,7 +35,7 @@ int exec(void * args)
     }
 
     // Create a message queue
-    key_t key = {0};
+    key_t key = 0;
     if (msgget(key, IPC_CREAT) == -1) {
         print_err("creating message queue");
         return 1;

@@ -35,8 +35,8 @@ big blue whale or the white steering wheel on the blue background.
 
 Let’s put these thoughts aside and ask ourselves: What are containers in detail?
 If we look at the corresponding documentation of Kubernetes we only find
-explanations about [“Why to use
-containers?“](https://kubernetes.io/docs/concepts/overview/what-is-kubernetes/#why-containers)
+explanations about [“Why you need Kubernetes and what it can
+do”](https://kubernetes.io/docs/concepts/overview/#why-you-need-kubernetes-and-what-it-can-do)
 and lots of [references to
 Docker](https://kubernetes.io/docs/concepts/containers/images/). Docker itself
 explains containers as [“a standard unit of
@@ -84,7 +84,7 @@ security hacker back in 1991. So chroot is much older than Linux and it has been
 (mis)used in the early 2000s for the first approaches in running applications as
 what we would call today “microservices”. Chroot is currently used by a wide
 range of applications, for example within build services for different
-distributions. Nowadays the BSD implementation differs a lots from the Linux
+distributions. Nowadays the BSD implementation differs a lot from the Linux
 one, where we will focus on the latter part for now.
 
 What is needed to run an own chroot environment? Not that much, since something
@@ -93,7 +93,7 @@ like this already works:
 ```bash
 > mkdir -p new-root/{bin,lib64}
 > cp /bin/bash new-root/bin
-> cp /lib64/{ld-linux-x86-64.so*,libc.so*,libdl.so.2,libreadline.so*,libtinfo.so*} new-root/lib64
+> cp /lib64/{ld-linux-x86-64.so*,libc.so*,libreadline.so*,libtinfo.so*} new-root/lib64
 > sudo chroot new-root
 ```
 
@@ -146,7 +146,7 @@ To continue with a more useful jail we need an appropriate root filesystem
 structure. But where to get one? What about peeling it from an already existing
 Open Container Initiative (OCI) container, which can be easily done with the two
 tools [`skopeo`](https://github.com/containers/skopeo) and
-[`umoci`](https://github.com/openSUSE/umoci):
+[`umoci`](https://github.com/opencontainers/umoci):
 
 ```bash
 > skopeo copy docker://opensuse/tumbleweed:latest oci:tumbleweed:latest
@@ -257,6 +257,8 @@ lrwxrwxrwx 1 0 Feb  6 18:32 mnt -> 'mnt:[4026531840]'
 lrwxrwxrwx 1 0 Feb  6 18:32 net -> 'net:[4026532008]'
 lrwxrwxrwx 1 0 Feb  6 18:32 pid -> 'pid:[4026531836]'
 lrwxrwxrwx 1 0 Feb  6 18:32 pid_for_children -> 'pid:[4026531836]'
+lrwxrwxrwx 1 0 Feb  6 18:32 time -> 'time:[4026531834]'
+lrwxrwxrwx 1 0 Feb  6 18:32 time_for_children -> 'time:[4026531834]'
 lrwxrwxrwx 1 0 Feb  6 18:32 user -> 'user:[4026531837]'
 lrwxrwxrwx 1 0 Feb  6 18:32 uts -> 'uts:[4026531838]'
 ```
@@ -264,7 +266,7 @@ lrwxrwxrwx 1 0 Feb  6 18:32 uts -> 'uts:[4026531838]'
 This allows us for example to track in which namespaces certain processes
 reside. Another way to play around with namespaces apart from the programmatic
 approach is using tools from the
-[`util-linux`](https://github.com/karelzak/util-linux) package. This contains
+[`util-linux`](https://github.com/util-linux/util-linux) package. This contains
 dedicated wrapper programs for the mentioned syscalls. One handy tool related to
 namespaces within this package is `lsns`. It lists useful information about all
 currently accessible namespaces or about a single given one. But now let’s
@@ -423,7 +425,7 @@ A possible use case for the network namespace is creating Software Defined
 Networks (SDN) via virtual Ethernet (veth) interface pairs. One end of the
 network pair will be plugged into a bridged interface whereas the other end will
 be assigned to the target container. This is how pod networks like
-[flannel](https://github.com/coreos/flannel) work in general.
+[flannel](https://github.com/flannel-io/flannel) work in general.
 
 ![](img/network.png)
 
@@ -677,7 +679,7 @@ Killed
 The example above uses the cgroups v1 interface, where each controller (memory,
 cpu, etc.) has its own hierarchy under `/sys/fs/cgroup/<controller>`. Since
 then, cgroups v2 has become the standard on most modern Linux distributions and
-is the default in Kubernetes 1.25 and later.
+is the default in Kubernetes 1.25 (2022) and later.
 
 Cgroups v2 replaces the per-controller directory trees with a single unified
 hierarchy mounted at `/sys/fs/cgroup`. Controllers are enabled or disabled per
@@ -787,7 +789,7 @@ int exec(void * args)
     }
 
     // Create a message queue
-    key_t key = {0};
+    key_t key = 0;
     if (msgget(key, IPC_CREAT) == -1) {
         print_err("creating message queue");
         return 1;
@@ -869,7 +871,7 @@ the rootfs:
 ```
 
 If we now inspect the system namespaces, we see that `runc` already created mnt,
-uts, ipc, pid and net for us:
+uts, ipc, pid, cgroup and net for us:
 
 ```bash
 > sudo lsns | grep bash
@@ -877,6 +879,7 @@ uts, ipc, pid and net for us:
 4026532500 uts         1  6409 root   /bin/bash
 4026532504 ipc         1  6409 root   /bin/bash
 4026532505 pid         1  6409 root   /bin/bash
+4026532508 cgroup      1  6409 root   /bin/bash
 4026532511 net         1  6409 root   /bin/bash
 ```
 

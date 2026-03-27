@@ -420,10 +420,10 @@ RUN touch my-file
 ```
 
 This is how our Dockerfile looks like, whereas we can build it by executing
-`buildah bud` in the same directory:
+`buildah build` in the same directory:
 
 ```bash
-> buildah bud
+> buildah build
 STEP 1: FROM alpine:latest
 Getting image source signatures
 Copying blob 050382585609 done
@@ -460,12 +460,14 @@ layers are created by filesystem modifications.
 
 This can be a security issue, because in the world of the Docker daemon it would
 be possible to inject anything in a currently building container by just
-hijacking the build process. Imagine we have a Dockerfile which contains
-operations which takes a larger amount of time, like installing `clang` on the
-latest version of Debian:
+hijacking the build process. Note that this applies to the legacy Docker build
+backend; Docker 23.0+ uses BuildKit by default, which isolates builds and does
+not expose intermediate containers. Imagine we have a Dockerfile which contains
+operations which takes a larger amount of time, like installing `clang` on
+Debian:
 
 ```Dockerfile
-FROM debian:buster
+FROM debian:bookworm
 RUN apt-get update -y && \
     apt-get install -y clang
 ```
@@ -794,7 +796,7 @@ preprocessor macro support][24] to de-compose a single Dockerfile into multiple
 ones. Feel free to try it out yourself or reach out to me if you have any
 further questions.
 
-[24]: https://github.com/containers/buildah/blob/a99139c/docs/buildah-bud.md
+[24]: https://github.com/containers/buildah/blob/main/docs/buildah-build.1.md
 
 ### podman as buildah’s interface
 
