@@ -111,7 +111,7 @@ Kernel based vulnerabilities appear in the wild, which is for sure an
 overall good sign.
 
 [20]: https://github.com/saschagrunert/demystifying-containers#table-of-contents
-[21]: http://man7.org/linux/man-pages/man7/namespaces.7.html
+[21]: https://man7.org/linux/man-pages/man7/namespaces.7.html
 
 The latest user namespace related vulnerability is [CVE-2018-18955][22], which
 uses a bug in kernel-to-namespace ID transformation. The vulnerability allows
@@ -127,7 +127,7 @@ Those so-called [capabilities][24] are one of the first Kernel features we have
 to deal with when restricting security accesses inside containers. Let’s have a
 closer look at some of them.
 
-[24]: http://man7.org/linux/man-pages/man7/capabilities.7.html
+[24]: https://man7.org/linux/man-pages/man7/capabilities.7.html
 
 ### Capabilities
 
@@ -146,14 +146,14 @@ capability at all. This means that software developers also have to take the
 target platform into account when developing software for it, which makes things
 more complicated.
 
-[30]: http://man7.org/linux/man-pages/man7/capabilities.7.html
+[30]: https://man7.org/linux/man-pages/man7/capabilities.7.html
 
 Capabilities are implemented in Linux using the extended file system attributes
 ([`xattr(7)`][31]), which are supported by all major Linux file systems like
 ext2-4, btrfs, JFS, XFS, and Reiserfs. We can use the `getcap` utility to
 retrieve the capabilities a binary has, for example:
 
-[31]: http://man7.org/linux/man-pages/man7/xattr.7.html
+[31]: https://man7.org/linux/man-pages/man7/xattr.7.html
 
 ```bash
 > getcap $(which ping)
@@ -380,7 +380,7 @@ To avoid something like that, either use multi-staged builds or a secrets mount
 feature of the container building tool:
 
 ```Dockerfile
-FROM: ubuntu as intermediate
+FROM ubuntu as intermediate
 
 COPY id_rsa /root/.ssh
 RUN scp build@server:/remote/file .
