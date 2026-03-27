@@ -2,25 +2,18 @@
 
 ## Table of Contents
 
-- [Introduction][1]
-- [A Brief History][2]
-- [The OCI Image Specification][3]
-- [Buildah][4]
-  - [Running containers versus building them][5]
-  - [Building containers without Dockerfiles][6]
-  - [buildah’ception][7]
-  - [podman as buildah’s interface][8]
-- [Conclusion][9]
+<!-- toc -->
 
-[1]: #introduction
-[2]: #a-brief-history
-[3]: #the-oci-image-specification
-[4]: #buildah
-[5]: #running-containers-versus-building-them
-[6]: #building-containers-without-dockerfiles
-[7]: #buildahception
-[8]: #podman-as-buildahs-interface
-[9]: #conclusion
+- [Introduction](#introduction)
+- [A Brief History](#a-brief-history)
+- [The OCI Image Specification](#the-oci-image-specification)
+- [Buildah](#buildah)
+  - [Running containers versus building them](#running-containers-versus-building-them)
+  - [Building containers without Dockerfiles](#building-containers-without-dockerfiles)
+  - [buildah’ception](#buildahception)
+  - [podman as buildah’s interface](#podman-as-buildahs-interface)
+- [Conclusion](#conclusion)
+<!-- /toc -->
 
 ## Introduction
 

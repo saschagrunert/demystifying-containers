@@ -2,6 +2,8 @@
 
 ## Table of Contents
 
+<!-- toc -->
+
 - [Introduction](#introduction)
 - [chroot](#chroot)
 - [Linux Namespaces](#linux-namespaces)
@@ -22,6 +24,7 @@
   - [Demo Application](#demo-application)
 - [Putting it all Together](#putting-it-all-together)
 - [Conclusion](#conclusion)
+<!-- /toc -->
 
 ## Introduction
 

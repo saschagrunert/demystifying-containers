@@ -39,6 +39,12 @@ build/docker: ## Build all container images.
 	docker build -f part3-container-images/src/Dockerfile part3-container-images/src
 	docker build -f part3-container-images/src/Dockerfile-debian part3-container-images/src
 
+##@ Verify targets:
+
+.PHONY: verify/mdtoc
+verify/mdtoc: ## Verify table of contents in markdown files.
+	mdtoc -d -i */post.md
+
 ##@ Utility targets:
 
 .PHONY: clean

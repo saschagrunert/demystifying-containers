@@ -2,6 +2,8 @@
 
 ## Table of Contents
 
+<!-- toc -->
+
 - [Introduction](#introduction)
 - [The Linux Kernel](#the-linux-kernel)
   - [Capabilities](#capabilities)
@@ -21,6 +23,7 @@
   - [Pod Security Admission (PSA)](#pod-security-admission-psa)
 - [Our Application](#our-application)
 - [Conclusion](#conclusion)
+<!-- /toc -->
 
 ## Introduction
 

@@ -2,6 +2,8 @@
 
 ## Table of Contents
 
+<!-- toc -->
+
 - [Introduction](#introduction)
 - [What is a Container Runtime?](#what-is-a-container-runtime)
 - [A Brief History](#a-brief-history)
@@ -10,6 +12,7 @@
   - [The Kubernetes Container Runtime Interface (CRI)](#the-kubernetes-container-runtime-interface-cri)
   - [CRI-O](#cri-o)
 - [Conclusion](#conclusion)
+<!-- /toc -->
 
 ## Introduction
 
