@@ -1,3 +1,5 @@
 *.o
 *.swp
-/part1-kernel-space/talk/lib/fonts/opensans/*
+target/
+namespaces
+unroot
