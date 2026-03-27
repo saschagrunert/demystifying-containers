@@ -586,9 +586,12 @@ cgroups were released there too and major features were added since then. One
 latest example is an Out-of-Memory (OOM) killer which adds an ability to kill a
 cgroup as a single unit to guarantee the overall integrity of the workload.
 
-Let’s play around with cgroups and create a new one. By default, the kernel
-exposes cgroups in `/sys/fs/cgroup`. To create a new cgroup, we simply create a
-new sub-directory on that location:
+Let’s play around with cgroups and create a new one. The following example uses
+the cgroups v1 interface for illustration. If your system uses cgroups v2 (the
+default on most modern distributions), see the v2 example further below.
+
+By default, the kernel exposes cgroups in `/sys/fs/cgroup`. To create a new
+cgroup, we simply create a new sub-directory on that location:
 
 ```bash
 > sudo mkdir /sys/fs/cgroup/memory/demo

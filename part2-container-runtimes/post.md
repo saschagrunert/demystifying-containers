@@ -115,10 +115,10 @@ that time, whereas a new tool called runc was born as part of that. With runc it
 was now possible to directly interact with libcontainer, interpret the OCI
 Runtime Specification and run containers from it.
 
-As of today, runc is one of the most popular projects in the container ecosystem
-and is used in a lot of other projects like containerd (used by Docker), CRI-O
-and [podman](https://podman.io). Other projects adopted the OCI Runtime
-Specification as well. For example Kata Containers makes it possible to build
+As of today, runc remains one of the most popular projects in the container
+ecosystem and is used in a lot of other projects like containerd (used by
+Docker), CRI-O and [podman](https://podman.io). Other projects adopted the OCI
+Runtime Specification as well. For example Kata Containers makes it possible to build
 and run secure containers including lightweight virtual machines that feel and
 perform like containers, but provide stronger workload isolation using hardware
 virtualization technology as a second layer of defense.

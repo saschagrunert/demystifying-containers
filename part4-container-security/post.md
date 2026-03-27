@@ -804,10 +804,18 @@ corresponding command line tool:
 9d3cc14e1733:/#
 ```
 
-It is worth mentioning that Kubernetes supports per pod and container seccomp
-profiles via the `seccomp.security.alpha.kubernetes.io/pod` and
-`container.seccomp.security.alpha.kubernetes.io/${container_name}` annotations
-in the pod manifest, too.
+Kubernetes supports seccomp profiles natively through the `seccompProfile`
+field in the pod or container `securityContext` (stable since Kubernetes 1.19).
+Earlier versions used the `seccomp.security.alpha.kubernetes.io/pod` and
+`container.seccomp.security.alpha.kubernetes.io/${container_name}` annotations,
+which are now deprecated. The modern approach looks like this:
+
+```yaml
+securityContext:
+  seccompProfile:
+    type: Localhost
+    localhostProfile: my-profile.json
+```
 
 In the same manner as for the Linux capability feature, it is valuable to invest
 time to work on seccomp filters for applications and lock them down in a minimal
@@ -910,26 +918,31 @@ securityContext:
     level: "s0:c123,c456"
 ```
 
-To set an AppArmor profile on a Kubernetes container, we have to add an
-annotation to the pod’s metadata, for example:
+To set an AppArmor profile on a Kubernetes container, we can use the
+`appArmorProfile` field in the container’s `securityContext` (stable since
+Kubernetes 1.30). Earlier versions used the
+`container.apparmor.security.beta.kubernetes.io/<container>` annotation, which
+is now deprecated. The modern approach looks like this:
 
 ```yaml
 apiVersion: v1
 kind: Pod
 metadata:
   name: hello-apparmor
-  annotations:
-    # AppArmor profile "k8s-apparmor-example-deny-write".
-    container.apparmor.security.beta.kubernetes.io/hello: localhost/k8s-apparmor-example-deny-write
 spec:
   containers:
     - name: hello
       image: busybox
-      command: ["sh", "-c", "echo 'Hello AppArmor!' && sleep 1h"]
+      command: ["sh", "-c", "echo ‘Hello AppArmor!’ && sleep 1h"]
+      securityContext:
+        appArmorProfile:
+          type: Localhost
+          localhostProfile: k8s-apparmor-example-deny-write
 ```
 
-The profile name can be also `runtime/default` to apply the container runtime’s
-default profile or `unconfined` to indicate that no profiles should be loaded.
+The `type` can be `RuntimeDefault` to apply the container runtime’s default
+profile, `Unconfined` to indicate that no profile should be loaded, or
+`Localhost` to reference a profile loaded on the node.
 
 ## Kubernetes
 
