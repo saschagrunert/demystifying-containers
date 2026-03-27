@@ -123,7 +123,7 @@ image tool [skopeo][17]:
 
 [17]: https://github.com/containers/skopeo
 
-```
+```bash
 > skopeo copy docker://saschagrunert/mysterious-image oci:mysterious-image
 Getting image source signatures
 Copying blob sha256:0503825856099e6adb39c8297af09547f69684b7016b7f3680ed801aa310baaa
@@ -141,7 +141,7 @@ pulled separately from some other _blobs_ out of the registry. This gives us an
 indicator about how the images are stored remotely. But what did we download at
 all?
 
-```
+```bash
 > tree mysterious-image
 mysterious-image
 ├── blobs
@@ -163,7 +163,7 @@ Now, we need to find out how the image looks from the inside. But how to do
 that? At first, let’s check out what the `index.json` of the downloaded image
 contains:
 
-```
+```bash
 > jq . mysterious-image/index.json
 ```
 
@@ -201,7 +201,7 @@ makes multi-architecture images work like a charm.
 
 Let’s have a look at the image manifest which is linked in the index:
 
-```
+```bash
 > jq . mysterious-image/blobs/sha256/703c711516a88a4ec99d742ce59e1a2f0802a51dac916975ab6f2b60212cd713
 ```
 
@@ -236,7 +236,7 @@ object.
 This means that we’re now able to obtain further information about the image
 _configuration_, like this:
 
-```
+```bash
 > jq . mysterious-image/blobs/sha256/8b2633baa7e149fe92e6d74b95e33d61b53ba129021ba251ac0c7ab7eafea825
 ```
 
@@ -312,7 +312,7 @@ pulling images from remote locations.
 Now, let’s have a look at the first layer, where we would expect the root
 filesystem (`rootfs`):
 
-```
+```bash
 > mkdir rootfs
 > tar -C rootfs -xf mysterious-image/blobs/sha256/0503825856099e6adb39c8297af09547f69684b7016b7f3680ed801aa310baaa
 > tree -L 1 rootfs/
@@ -339,7 +339,7 @@ rootfs/
 Looks like a real file system layout, right? And it truly is, so we can easily
 examine the base distribution of the container image:
 
-```
+```bash
 > cat rootfs/etc/os-release
 NAME="Alpine Linux"
 ID=alpine
@@ -351,7 +351,7 @@ BUG_REPORT_URL="https://bugs.alpinelinux.org/"
 
 Let’s see what the other layer contains:
 
-```
+```bash
 > mkdir layer
 > tar -C layer -xf mysterious-image/blobs/sha256/6d8c9f2df98ba6c290b652ac57151eab8bcd6fb7574902fbd16ad9e2912a6753
 > tree layer
@@ -401,7 +401,7 @@ So, if we’re migrating from the Docker world, then it is worth to mention that
 it is surely possible to build container images using standard Dockerfiles with
 buildah. Let’s give that a try:
 
-```
+```bash
 > cat Dockerfile
 ```
 
@@ -414,7 +414,7 @@ RUN touch my-file
 This is how our Dockerfile looks like, whereas we can build it by executing
 `buildah bud` in the same directory:
 
-```
+```bash
 > buildah bud
 STEP 1: FROM alpine:latest
 Getting image source signatures
@@ -462,7 +462,7 @@ RUN apt-get update -y && \
     apt-get install -y clang
 ```
 
-```
+```bash
 > docker build -t clang .
 […]
 ```
@@ -470,7 +470,7 @@ RUN apt-get update -y && \
 During the installation process, we can see that there is a docker container
 running:
 
-```
+```bash
 > docker ps
 CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS               NAMES
 05f4aa4aa95c        54da47293a0b        "/bin/sh -c 'apt-get…"   11 seconds ago      Up 11 seconds                           interesting_heyrovsky
@@ -478,7 +478,7 @@ CONTAINER ID        IMAGE               COMMAND                  CREATED        
 
 Okay, then let’ jump into that container:
 
-```
+```bash
 > docker exec -it 05f4aa4aa95c sh
 # echo "Hello world" >> my-file
 ```
@@ -487,7 +487,7 @@ We can do any container modification right in the currently building container.
 After the successful built of the docker container image, we can verify that the
 created `my-file` is there:
 
-```
+```bash
 > docker run clang cat my-file
 Hello world
 ```
@@ -512,7 +512,7 @@ Let’s give it a try by creating a new base container on top of
 
 [23]: https://alpinelinux.org
 
-```
+```bash
 > buildah from alpine:latest
 alpine-working-container
 ```
@@ -520,7 +520,7 @@ alpine-working-container
 We now have a running working container called `alpine-working-container`, which
 we can list with `buildah ps`:
 
-```
+```bash
 CONTAINER ID  BUILDER  IMAGE ID     IMAGE NAME                       CONTAINER NAME
 bc50127e88aa     *     b7b28af77ffe docker.io/library/alpine:latest  alpine-working-container
 ```
@@ -528,7 +528,7 @@ bc50127e88aa     *     b7b28af77ffe docker.io/library/alpine:latest  alpine-work
 Now, we can run commands within that container, for example this one to
 demonstrate that it is actually an Alpine Linux distribution:
 
-```
+```bash
 > buildah run alpine-working-container cat /etc/os-release
 NAME="Alpine Linux"
 ID=alpine
@@ -540,7 +540,7 @@ BUG_REPORT_URL="https://bugs.alpinelinux.org/"
 
 Or create a new file within the container:
 
-```
+```bash
 > echo test > file
 > buildah copy alpine-working-container file /test-file
 86f68033be6f25f54127091bb410f2e65437c806e7950e864056d5c272893edb
@@ -555,7 +555,7 @@ setting the `BUILDAH_HISTORY=true` and environment variable.
 But generally everything seems to work, so then let’s `commit` our new container
 image to finalize the build process:
 
-```
+```bash
 > buildah commit alpine-working-container my-image
 Getting image source signatures
 Copying blob 1bfeebd65323 skipped: already exists
@@ -569,7 +569,7 @@ a81c56b613a9fe502ac8a12e3d12f8bbfd95ba06400194f610352452cea8b62f
 Now, the new container image `my-image` should be available within our local
 registry:
 
-```
+```bash
 > buildah images
 REPOSITORY                 TAG      IMAGE ID       CREATED          SIZE
 localhost/my-image         latest   a81c56b613a9   36 seconds ago   5.85 MB
@@ -579,7 +579,7 @@ docker.io/library/alpine   latest   b7b28af77ffe   4 weeks ago      5.85 MB
 Buildah is able to push the container image into a Docker registry or into an
 local on-disk OCI format, like this:
 
-```
+```bash
 > buildah push my-image oci:my-image
 Getting image source signatures
 Copying blob 1bfeebd65323 done
@@ -592,8 +592,11 @@ Storing signatures
 The created directory `my-image` contains now a fully OCI compatible image
 layout, with _image index_, _configuration_ a set of _layers_ and a _manifest_.
 
-```
+```bash
 > jq . my-image/index.json
+```
+
+```json
 {
   "schemaVersion": 2,
   "manifests": [
@@ -614,19 +617,19 @@ Buildah wouldn’t be buildah if we could not pull the image back from such a
 directory structure. To demonstrate this, let’s first remove the image
 `my-image` from buildah’s local registry:
 
-```
+```bash
 > buildah rmi my-image
 […]
 ```
 
 And then pull it in again:
 
-```
+```bash
 > buildah pull oci:my-image
 […]
 ```
 
-```
+```bash
 > buildah images
 REPOSITORY                   TAG      IMAGE ID       CREATED         SIZE
 docker.io/library/my-image   latest   a81c56b613a9   9 minutes ago   5.85 MB
@@ -642,7 +645,7 @@ much more power and flexibility than a single Dockerfile.
 Let’s check if our working container is still running, by interactively spawning
 a shell within it:
 
-```
+```bash
 > buildah run -t alpine-working-container sh
 / # ls
 bin        etc        lib        mnt        proc       run        srv
@@ -658,7 +661,7 @@ With buildah, it is even possible to mount the containers filesystem locally to
 get rid of the build context limitation of a Docker daemon. So, we’re able to do
 something like this:
 
-```
+```bash
 > buildah unshare --mount MOUNT=alpine-working-container
 > echo it-works > "$MOUNT"/test-from-mount
 > buildah commit alpine-working-container my-new-image
@@ -677,7 +680,7 @@ That’s it, we successfully modified the containers filesystem via a local moun
 We can verify this via testing for the `test-from-mount` file we created within
 the working container.
 
-```
+```bash
 > buildah run -t alpine-working-container cat test-from-mount
 it-works
 ```
@@ -705,12 +708,12 @@ Let’s do it, we can run buildah within a container running on top of buildah! 
 do this, let’s first install buildah in a container, which is already running by
 buildah:
 
-```
+```bash
 > buildah from opensuse/tumbleweed
 tumbleweed-working-container
 ```
 
-```
+```bash
 > buildah run -t tumbleweed-working-container bash
 # zypper in -y buildah
 ```
@@ -719,7 +722,7 @@ Now, buildah should be ready to be used within that container. Please note that
 we have to choose the storage driver `vfs` within the container to have a
 working filesystem stack:
 
-```
+```bash
 # buildah --storage-driver=vfs from alpine:latest
 alpine-working-container
 # buildah --storage-driver=vfs commit alpine-working-container my-image
@@ -735,7 +738,7 @@ the container storage to get the image on our local machine.
 
 First, let’s push the image into the container under `/my-image`:
 
-```
+```bash
 # buildah --storage-driver=vfs push my-image oci:my-image
 […]
 ```
@@ -743,7 +746,7 @@ First, let’s push the image into the container under `/my-image`:
 Then we exit the containerception and copy the built image out of the running
 working container by mounting its filesystem:
 
-```
+```bash
 > buildah unshare
 > export MOUNT=$(buildah mount tumbleweed-working-container)
 > cp -R $MOUNT/my-image .
@@ -753,7 +756,7 @@ working container by mounting its filesystem:
 We can now pull the image from the directory directly into buildah’s local
 registry:
 
-```
+```bash
 > buildah pull oci:my-image
 […]
 > buildah images my-image
@@ -795,7 +798,7 @@ shares the same storage under the hood to run the containers built with buildah.
 This is pretty neat, so we can actually run our previously built containers like
 this:
 
-```
+```bash
 > podman run -it my-image sh
 / # ls
 bin    dev    etc    home   lib    media  mnt    opt    proc   root   run

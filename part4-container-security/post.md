@@ -360,7 +360,7 @@ Then the `SECRET` variable will be visible in the build history of the container
 image, because a simple command like `echo test` will trigger that the secret
 environment variable gets exposed.
 
-```
+```bash
 > podman history my-image
 ID             CREATED          CREATED BY                                      SIZE      COMMENT
 57edd9bca90b   17 seconds ago   |1 SECRET=my-secret /bin/sh -c echo test        185B
@@ -404,7 +404,7 @@ RUN cat /run/secret
 The secret will not occur in any container history, but will be accessible
 during build-time:
 
-```
+```bash
 > podman build .
 STEP 1: FROM alpine
 STEP 2: RUN cat /run/secret
@@ -734,7 +734,7 @@ unshare: unshare(0x0): Operation not permitted
 
 If we now modify the profile to remove the capability constraints:
 
-```jaon
+```json
 {
   "names": ["unshare"],
   "action": "SCMP_ACT_ALLOW",
@@ -821,7 +821,7 @@ profile no-ping flags=(attach_disconnected,mediate_deleted) {
 This profile disallows raw network packets like which we would need for `ping`.
 Now we can load the profile into the system via:
 
-```
+```bash
 > apparmor_parser --replace --write-cache /etc/apparmor.d/no_raw_net
 ```
 
