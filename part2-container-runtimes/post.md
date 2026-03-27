@@ -47,7 +47,7 @@ _Now, welcome to the world of containers!_
 Lots of applications can run containers, whereas every application would have
 a sightly different opinion about what a container runtime should do and
 support. For example, systemd is able to run containers via
-[systemd-nspawn](https://www.freedesktop.org/software/systemd/man/systemd-nspawn.html),
+[systemd-nspawn](https://www.freedesktop.org/software/systemd/man/latest/systemd-nspawn.html),
 and [NixOS](https://nixos.org) has integrated
 [container management](https://nixos.org/nixos/manual/#ch-containers) as well. Not
 to mention all the other existing container runtimes like
