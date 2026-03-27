@@ -19,7 +19,7 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - uses: lycheeverse/lychee-action@8646ba30535128ac92d33dfc9133794bfdd9b411 # v2.8.0
         with:
-          args: --verbose --no-progress --accept 200,204,301,302,429 --timeout 30 --retry-wait-time 5 --max-retries 5 '**/*.md'
+          args: --config .lychee.toml "**/*.md"
           fail: true
 
   mdtoc:
@@ -30,7 +30,7 @@ jobs:
         with:
           go-version: stable
       - run: go install sigs.k8s.io/mdtoc@latest
-      - run: mdtoc -d -i */post.md
+      - run: mdtoc -d -i *.md */post.md
 
   markdown-lint:
     runs-on: ubuntu-latest

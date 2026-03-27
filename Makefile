@@ -43,7 +43,7 @@ build/docker: ## Build all container images.
 
 .PHONY: verify/mdtoc
 verify/mdtoc: ## Verify table of contents in markdown files.
-	mdtoc -d -i */post.md
+	mdtoc -d -i *.md */post.md
 
 ##@ Utility targets:
 

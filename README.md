@@ -18,10 +18,35 @@ like Kubernetes are designed and how they work under the hood.
 
 ## Table of Contents
 
+<!-- toc -->
+
+- [Prerequisites](#prerequisites)
 - [Part I: Kernel Space](#part-i-kernel-space)
 - [Part II: Container Runtimes](#part-ii-container-runtimes)
 - [Part III: Container Images](#part-iii-container-images)
 - [Part IV: Container Security](#part-iv-container-security)
+- [Part X](#part-x)
+- [Contributing](#contributing)
+<!-- /toc -->
+
+## Prerequisites
+
+To follow along with the hands-on examples, you will need a Linux system with:
+
+- **gcc** and **make** for compiling the C examples (Part I)
+- **cargo** (Rust toolchain) for the memory cgroup demo (Part I)
+- **runc** for running OCI containers directly (Part I, II)
+- **skopeo** and **umoci** for downloading and unpacking container images
+  (Part I, II, III)
+- **crictl** (from [cri-tools](https://github.com/kubernetes-sigs/cri-tools))
+  for CRI-O interaction (Part II)
+- **buildah** and **podman** for building and running containers (Part III, IV)
+- **jq** for inspecting JSON output
+
+Most examples require root privileges or a user namespace with appropriate
+mappings. The [crio-playground](https://hub.docker.com/r/saschagrunert/crio-playground)
+container image bundles the Part II dependencies for convenience. To build it
+locally, see the Dockerfile in `part2-container-runtimes/src/`.
 
 ## Part I: Kernel Space
 
@@ -143,7 +168,7 @@ Further parts of the series are not available yet. Potential future topics
 include container networking (CNI), WebAssembly (WASM) container runtimes,
 and supply chain security.
 
-# Contributing
+## Contributing
 
 You want to contribute to this project? Wow, thanks! So please just fork it and
 send me a pull request.
