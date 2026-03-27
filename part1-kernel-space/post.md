@@ -202,11 +202,12 @@ different views of the system.
 Not all available namespaces were implemented from the beginning. A full
 support for what we now understand as “container ready” was finished in kernel
 version 3.8 back in 2013 with the introduction of the _user_ namespace. We end
-up having currently seven distinct namespaces implemented: _mnt, pid, net, ipc,
-uts, user_ and _cgroup_. No worries, we will discuss them in detail. In September
-2016 two additional namespaces were proposed (_time_ and _syslog_) which are not
-fully implemented yet. Let’s have a look into the namespace API before digging
-into certain namespaces.
+up having currently eight distinct namespaces implemented: _mnt, pid, net, ipc,
+uts, user, cgroup_ and _time_. We will discuss the first seven in detail below.
+The _time_ namespace was added in Linux 5.6 (2020), allowing containers to have
+their own view of `CLOCK_MONOTONIC` and `CLOCK_BOOTTIME` clocks. A _syslog_
+namespace has been proposed but is not yet implemented. Let’s have a look into
+the namespace API before digging into certain namespaces.
 
 ### API
 

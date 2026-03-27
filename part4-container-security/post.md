@@ -21,6 +21,7 @@
   - [SELinux and AppArmor](#selinux-and-apparmor)
 - [Kubernetes](#kubernetes)
   - [Pod Security Admission (PSA)](#pod-security-admission-psa)
+- [Runtime Security and eBPF](#runtime-security-and-ebpf)
 - [Our Application](#our-application)
 - [Conclusion](#conclusion)
 <!-- /toc -->
@@ -554,14 +555,21 @@ separately per pod via the Kubernetes Runtime Class feature. We have to
 distinguish the level of security depending on the underlying used container
 runtimes. For example, a possible vulnerability in runc has a much higher impact
 than one in containerd because of its usage scope. Utilizing additional runtimes
-like [Kata Containers][59] which target to provide a higher level of security by
-isolating the workloads in a micro VM. This for sure increases the application
-security, but also defers the vulnerable attack surface to hypervisors and the
-Kata runtime itself.
+like [Kata Containers][59] or [gVisor][59a] can provide a higher level of
+security through additional isolation layers. Kata Containers isolate workloads
+in lightweight VMs, using hardware virtualization as a second layer of defense.
+gVisor takes a different approach by implementing a user-space kernel (called
+Sentry) that intercepts and handles application system calls, reducing the host
+kernel's attack surface without requiring a full VM. Both runtimes are OCI
+compatible and can be selected as alternatives to runc through the Kubernetes
+RuntimeClass feature. The trade-off is increased resource overhead and
+potential application compatibility issues, since not all syscalls behave
+identically under gVisor's emulated kernel.
 
 [57]: https://containerd.io
 [58]: https://docker.com
 [59]: https://katacontainers.io
+[59a]: https://gvisor.dev
 
 An example for a high severity runc vulnerability is [CVE-2019-5736][60], which
 affects runc versions prior to v1.0.0-rc7. The root cause of the vulnerability
@@ -1048,6 +1056,72 @@ can fill the gap.
 
 [94]: https://kyverno.io
 [95]: https://open-policy-agent.github.io/gatekeeper
+
+## Runtime Security and eBPF
+
+The security mechanisms we have discussed so far (capabilities, seccomp,
+SELinux/AppArmor, PSA) are all preventive: they restrict what a container is
+allowed to do. But prevention alone is not enough. We also need to detect
+suspicious behavior at runtime, because not every attack can be blocked by
+static policies.
+
+[Extended Berkeley Packet Filter (eBPF)][96] has become a foundational
+technology for runtime container security. eBPF allows programs to run inside
+the Linux kernel without modifying kernel source code or loading kernel modules.
+These programs attach to kernel events (system calls, network activity, file
+access) and can observe or act on them with minimal overhead.
+
+[96]: https://ebpf.io
+
+Several open source projects build on eBPF to provide runtime security for
+containers:
+
+- [Falco][97] detects unexpected behavior in running containers by monitoring
+  system calls (using an eBPF driver or a kernel module for syscall capture).
+  It ships with a default rule set that covers common threat patterns (e.g.,
+  shell spawned in a container, sensitive file read, unexpected outbound
+  connection) and supports custom rules. A Falco rule that alerts when a shell
+  is spawned inside a container looks like this (using Falco's built-in
+  macros):
+
+  ```yaml
+  - rule: Terminal shell in container
+    desc: Detect a shell spawned in a container
+    condition: >
+      spawned_process and container and
+      proc.name in (bash, sh, zsh)
+    output: >
+      Shell spawned in container
+      (container=%container.name process=%proc.name)
+    priority: WARNING
+  ```
+
+  Falco is a CNCF graduated project, reflecting its wide adoption in
+  production Kubernetes environments.
+
+- [Tetragon][98] (from the Cilium project) provides eBPF-based security
+  observability and runtime enforcement. Unlike Falco, which primarily detects
+  and alerts, Tetragon can enforce policies directly in the kernel by blocking
+  system calls or killing processes. It supports tracing at the kernel function
+  level, giving deep visibility into process execution, file access and network
+  connections.
+
+- [Cilium][99] itself uses eBPF for network security and observability. It
+  enforces network policies at the kernel level with lower overhead than
+  iptables-based solutions and provides identity-aware traffic filtering for
+  Kubernetes pods.
+
+[97]: https://falco.org
+[98]: https://github.com/cilium/tetragon
+[99]: https://cilium.io
+
+The advantage of eBPF-based security tools is that they operate transparently:
+they require no changes to application code or container images. They observe
+the actual kernel-level behavior of workloads, which means they can detect
+threats that static policies miss, such as a compromised dependency executing
+unexpected system calls or a container escape attempt in progress. Combining
+preventive controls (seccomp, capabilities, PSA) with eBPF-based runtime
+detection provides a defense-in-depth strategy for container workloads.
 
 ## Our Application
 

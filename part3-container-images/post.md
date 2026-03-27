@@ -93,9 +93,22 @@ the Open Container Initiative (OCI) as base for the creation of the OCI image
 specification. 2017 was the year where the OCI image format [v1.0.0][15] has
 been released, so let’s take a look what it’s all about.
 
+It is worth noting that the OCI also maintains a [Distribution
+Specification][15a], which standardizes the HTTP API that container registries
+expose for pushing and pulling images. This is the protocol that tools like
+skopeo, buildah and container runtimes use when they interact with registries
+such as [Docker Hub][25], [quay.io][26] or [GitHub Container Registry][27].
+The distribution spec also enables storing non-container artifacts (Helm
+charts, WASM modules, signatures) in standard registries, making the registry
+a general-purpose content-addressable storage system.
+
 [13]: ../part2-container-runtimes/post.md
 [14]: https://www.docker.com
 [15]: https://github.com/opencontainers/image-spec/releases/tag/v1.0.0
+[15a]: https://github.com/opencontainers/distribution-spec
+[25]: https://hub.docker.com
+[26]: https://quay.io
+[27]: https://ghcr.io
 
 ## The OCI Image Specification
 

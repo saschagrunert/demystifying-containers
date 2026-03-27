@@ -139,7 +139,9 @@ You can find the blog post:
 
 ## Part X
 
-Further parts of the series are not available yet.
+Further parts of the series are not available yet. Potential future topics
+include container networking (CNI), WebAssembly (WASM) container runtimes,
+and supply chain security.
 
 # Contributing
 
