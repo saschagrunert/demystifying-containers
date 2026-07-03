@@ -24,6 +24,7 @@
   - [Demo Application](#demo-application)
 - [Putting it all Together](#putting-it-all-together)
 - [Conclusion](#conclusion)
+
 <!-- /toc -->
 
 ## Introduction

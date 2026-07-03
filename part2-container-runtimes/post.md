@@ -12,6 +12,7 @@
   - [The Kubernetes Container Runtime Interface (CRI)](#the-kubernetes-container-runtime-interface-cri)
   - [CRI-O](#cri-o)
 - [Conclusion](#conclusion)
+
 <!-- /toc -->
 
 ## Introduction

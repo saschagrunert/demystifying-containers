@@ -27,6 +27,7 @@ like Kubernetes are designed and how they work under the hood.
 - [Part IV: Container Security](#part-iv-container-security)
 - [Part X](#part-x)
 - [Contributing](#contributing)
+
 <!-- /toc -->
 
 ## Prerequisites
